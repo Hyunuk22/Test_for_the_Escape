@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>오늘의 활동 분석기 — 미리보기</title>
+  <style>
+    :root {
+      --bg: #0c0c14;
+      --card: #1a1a2a;
+      --border: rgba(255,255,255,0.07);
+      --accent: #7c6fcd;
+      --accent2: #a78bfa;
+      --text: #e2e4f0;
+      --muted: #6b7280;
+      --yellow: #fbbf24;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #1c1c2a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+      padding: 2rem;
+    }
+    .label {
+      text-align: center;
+      color: rgba(167,139,250,0.6);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    /* ── POPUP FRAME ── */
+    .popup {
+      width: 460px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.5;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(167,139,250,0.15);
+    }
+
+    /* HEADER */
+    .dash-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 1.4rem 0.8rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .dash-date { font-size: 0.72rem; color: var(--accent2); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+    .dash-subtitle { font-size: 1rem; font-weight: 800; margin-top: 0.1rem; }
+    .btn-refresh {
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--muted); width: 32px; height: 32px; border-radius: 8px;
+      font-size: 1.1rem; display: flex; align-items: center; justify-content: center;
+    }
+
+    /* STATS */
+    .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 0.6rem; padding: 0.9rem 1.2rem; }
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.75rem; text-align: center;
+    }
+    .stat-value { font-size: 1.3rem; font-weight: 800; color: var(--accent2); line-height: 1.2; }
+    .stat-label { font-size: 0.7rem; color: var(--muted); margin-top: 0.2rem; }
+
+    /* SECTION */
+    .section { padding: 0.5rem 1.2rem 1rem; border-top: 1px solid var(--border); }
+    .section-title {
+      font-size: 0.78rem; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin: 0.9rem 0 0.8rem;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+
+    /* SITE LIST */
+    .site-row {
+      display: flex; align-items: center; gap: 0.7rem;
+      padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .site-row:last-child { border-bottom: none; }
+    .site-rank { font-size: 0.7rem; font-weight: 700; color: var(--muted); width: 16px; text-align: right; flex-shrink: 0; }
+    .site-rank.top { color: var(--yellow); }
+    .site-avatar {
+      width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 800; color: rgba(255,255,255,0.9);
+    }
+    .site-info { flex: 1; min-width: 0; }
+    .site-domain { font-size: 0.82rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .site-bar-wrap { display: flex; align-items: center; gap: 0.4rem; margin-top: 3px; }
+    .site-bar-bg { flex: 1; background: rgba(255,255,255,0.06); border-radius: 999px; height: 4px; overflow: hidden; }
+    .site-bar { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+    .site-visits { font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
+    .site-time { font-size: 0.7rem; color: var(--accent2); font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+
+    /* HEATMAP */
+    .heatmap { display: grid; grid-template-columns: repeat(24,1fr); gap: 3px; }
+    .heatmap-cell { aspect-ratio: 1; border-radius: 3px; background: rgba(255,255,255,0.05); }
+    .heatmap-labels { display: grid; grid-template-columns: repeat(24,1fr); gap: 3px; margin-top: 4px; }
+    .heatmap-label { text-align: center; font-size: 0.55rem; color: var(--muted); }
+
+    /* KEYWORDS */
+    .keyword-cloud { display: flex; flex-wrap: wrap; gap: 0.5rem; padding-top: 0.2rem; }
+    .keyword-tag { border-radius: 999px; padding: 0.25rem 0.75rem; font-size: 0.78rem; font-weight: 600; border: 1px solid; }
+    .kw-1 { font-size: 1rem; padding: 0.3rem 1rem; }
+    .kw-2 { font-size: 0.88rem; padding: 0.28rem 0.9rem; }
+    .kw-3 { font-size: 0.78rem; }
+    .kw-4 { font-size: 0.72rem; }
+    .kw-c0 { background: rgba(167,139,250,0.12); border-color: rgba(167,139,250,0.3); color: #c4b5fd; }
+    .kw-c1 { background: rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.25); color: #6ee7b7; }
+    .kw-c2 { background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.25); color: #fcd34d; }
+    .kw-c3 { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.25); color: #fca5a5; }
+    .kw-c4 { background: rgba(96,165,250,0.1); border-color: rgba(96,165,250,0.25); color: #93c5fd; }
+  </style>
+</head>
+<body>
+<div>
+  <p class="label">✦ 확장 프로그램 팝업 미리보기 ✦</p>
+  <div class="popup">
+
+    <!-- Header -->
+    <div class="dash-header">
+      <div>
+        <div class="dash-date" id="dash-date"></div>
+        <div class="dash-subtitle">오늘의 활동 리포트</div>
+      </div>
+      <div class="btn-refresh">↺</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-value">14</div><div class="stat-label">방문 사이트</div></div>
+      <div class="stat-card"><div class="stat-value">87</div><div class="stat-label">총 방문 횟수</div></div>
+      <div class="stat-card"><div class="stat-value">2시간 34분</div><div class="stat-label">측정된 활동</div></div>
+    </div>
+
+    <!-- Sites -->
+    <div class="section">
+      <div class="section-title"><span>📊</span> 사이트별 활동</div>
+      <div id="site-list"></div>
+    </div>
+
+    <!-- Heatmap -->
+    <div class="section">
+      <div class="section-title"><span>🕐</span> 시간대별 활동</div>
+      <div class="heatmap" id="heatmap"></div>
+      <div class="heatmap-labels" id="heatmap-labels"></div>
+    </div>
+
+    <!-- Keywords -->
+    <div class="section">
+      <div class="section-title"><span>🔍</span> 오늘의 주요 관심사</div>
+      <div class="keyword-cloud" id="keywords"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // 날짜
+  document.getElementById('dash-date').textContent =
+    new Date().toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric', weekday:'short' });
+
+  // 샘플 사이트 데이터
+  const sites = [
+    { domain: 'youtube.com',   count: 28, pct: 100, time: '58분',  color: '#7c6fcd' },
+    { domain: 'chatgpt.com',   count: 19, pct: 68,  time: '41분',  color: '#5b8dd9' },
+    { domain: 'github.com',    count: 14, pct: 50,  time: '29분',  color: '#4caf87' },
+    { domain: 'google.com',    count: 11, pct: 39,  time: '18분',  color: '#d97c5b' },
+    { domain: 'naver.com',     count:  7, pct: 25,  time: '12분',  color: '#c45b8d' },
+    { domain: 'notion.so',     count:  4, pct: 14,  time:  '8분',  color: '#8d5bc4' },
+    { domain: 'stackoverflow.com', count: 3, pct: 11, time: '5분', color: '#5bc4b8' },
+  ];
+
+  const siteList = document.getElementById('site-list');
+  sites.forEach((s, i) => {
+    const letter = s.domain[0].toUpperCase();
+    siteList.innerHTML += `
+      <div class="site-row">
+        <span class="site-rank ${i<3?'top':''}">${i+1}</span>
+        <div class="site-avatar" style="background:${s.color}">${letter}</div>
+        <div class="site-info">
+          <div class="site-domain">${s.domain}</div>
+          <div class="site-bar-wrap">
+            <div class="site-bar-bg"><div class="site-bar" style="width:${s.pct}%"></div></div>
+            <span class="site-visits">${s.count}회</span>
+          </div>
+        </div>
+        <span class="site-time">${s.time}</span>
+      </div>`;
+  });
+
+  // 히트맵 (샘플 활동 패턴)
+  const hourActivity = [0,0,0,0,0,0,1,3,8,12,15,10,7,14,18,20,16,12,9,11,8,5,2,0];
+  const maxA = Math.max(...hourActivity);
+  const heatmap = document.getElementById('heatmap');
+  const hlabels = document.getElementById('heatmap-labels');
+  hourActivity.forEach((v, h) => {
+    const cell = document.createElement('div');
+    cell.className = 'heatmap-cell';
+    if (v > 0) {
+      const alpha = 0.15 + (v / maxA) * 0.75;
+      cell.style.background = `rgba(124,111,205,${alpha.toFixed(2)})`;
+    }
+    heatmap.appendChild(cell);
+    const lbl = document.createElement('div');
+    lbl.className = 'heatmap-label';
+    lbl.textContent = h % 3 === 0 ? `${h}` : '';
+    hlabels.appendChild(lbl);
+  });
+
+  // 키워드
+  const keywords = [
+    ['HCI', 0], ['인공지능', 1], ['React', 2], ['논문', 0],
+    ['GitHub', 4], ['UX디자인', 1], ['JavaScript', 2], ['ChatGPT', 3],
+    ['머신러닝', 0], ['프로젝트', 4], ['API', 2], ['데이터분석', 1],
+    ['Next.js', 3], ['알고리즘', 0], ['Chrome확장', 4],
+  ];
+  const sizes = ['kw-1','kw-1','kw-2','kw-2','kw-3','kw-3','kw-3','kw-4','kw-4','kw-4','kw-4','kw-4','kw-4','kw-4','kw-4'];
+  const cloud = document.getElementById('keywords');
+  keywords.forEach(([w, c], i) => {
+    cloud.innerHTML += `<span class="keyword-tag ${sizes[i]} kw-c${c}">${w}</span>`;
+  });
+</script>
+</body>
+</html>

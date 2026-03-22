@@ -74,55 +74,57 @@ async function analyze() {
   showView('view-loading');
   setLoadingMsg('방문 기록 분석 중');
 
-  const todayStart = getTodayStart();
-
-  // 1. 히스토리 가져오기
-  let historyItems = [];
   try {
+    const todayStart = getTodayStart();
+
+    // 1. 히스토리 가져오기
+    let historyItems = [];
     historyItems = await chrome.history.search({
       text: '',
       startTime: todayStart,
       maxResults: 500,
     });
+
+    // 2. 체류 시간 데이터
+    const today = new Date().toDateString();
+    const storageResult = await chrome.storage.local.get(`time_${today}`);
+    const timeData = storageResult[`time_${today}`] || {};
+
+    // 3. 도메인별 집계
+    const domainMap = {};
+    const hourMap = new Array(24).fill(0);
+
+    historyItems.forEach(item => {
+      const domain = getDomain(item.url);
+      if (!domain) return;
+
+      if (!domainMap[domain]) domainMap[domain] = { count: 0 };
+      domainMap[domain].count += 1;
+
+      if (item.lastVisitTime) {
+        const h = new Date(item.lastVisitTime).getHours();
+        hourMap[h]++;
+      }
+    });
+
+    // 4. 키워드 추출
+    const keywords = extractKeywords(historyItems);
+
+    // 5. 사이트 정렬
+    const sortedSites = Object.entries(domainMap)
+      .sort((a, b) => b[1].count - a[1].count)
+      .slice(0, 12);
+
+    const totalVisits = historyItems.length;
+    const totalTime = Object.values(timeData).reduce((a, b) => a + b, 0);
+
+    renderDashboard({ sortedSites, timeData, hourMap, keywords, totalVisits, totalTime });
+    showView('view-dashboard');
+
   } catch (e) {
-    console.error('history error', e);
+    console.error('analyze error:', e);
+    setLoadingMsg('오류가 발생했습니다: ' + e.message);
   }
-
-  // 2. 체류 시간 데이터
-  const today = new Date().toDateString();
-  const storageResult = await chrome.storage.local.get(`time_${today}`);
-  const timeData = storageResult[`time_${today}`] || {};
-
-  // 3. 도메인별 집계
-  const domainMap = {};
-  const hourMap = new Array(24).fill(0);
-
-  historyItems.forEach(item => {
-    const domain = getDomain(item.url);
-    if (!domain) return;
-
-    if (!domainMap[domain]) domainMap[domain] = { count: 0 };
-    domainMap[domain].count += 1;
-
-    if (item.lastVisitTime) {
-      const h = new Date(item.lastVisitTime).getHours();
-      hourMap[h]++;
-    }
-  });
-
-  // 4. 키워드 추출
-  const keywords = extractKeywords(historyItems);
-
-  // 5. 사이트 정렬
-  const sortedSites = Object.entries(domainMap)
-    .sort((a, b) => b[1].count - a[1].count)
-    .slice(0, 12);
-
-  const totalVisits = historyItems.length;
-  const totalTime = Object.values(timeData).reduce((a, b) => a + b, 0);
-
-  renderDashboard({ sortedSites, timeData, hourMap, keywords, totalVisits, totalTime });
-  showView('view-dashboard');
 }
 
 // ── 렌더링 ─────────────────────────────────────────────
