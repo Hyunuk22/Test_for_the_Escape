@@ -247,20 +247,14 @@ body {
 }
 .site-rank.top { color: var(--yellow); }
 
-.site-favicon {
-  width: 18px; height: 18px;
-  border-radius: 4px;
+.site-avatar {
+  width: 22px; height: 22px;
+  border-radius: 6px;
   flex-shrink: 0;
-  background: var(--card);
   display: flex; align-items: center; justify-content: center;
   font-size: 0.7rem;
-  color: var(--muted);
-  overflow: hidden;
-}
-.site-favicon img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  border-radius: 3px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.9);
 }
 
 .site-info { flex: 1; min-width: 0; }

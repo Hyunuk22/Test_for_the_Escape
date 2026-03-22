@@ -82,7 +82,7 @@ async function analyze() {
     historyItems = await chrome.history.search({
       text: '',
       startTime: todayStart,
-      maxResults: 2000,
+      maxResults: 500,
     });
   } catch (e) {
     console.error('history error', e);
@@ -141,21 +141,23 @@ function renderDashboard({ sortedSites, timeData, hourMap, keywords, totalVisits
   if (sortedSites.length === 0) {
     siteList.innerHTML = '<p class="empty-msg">오늘 방문한 사이트가 없습니다.</p>';
   } else {
+    const AVATAR_COLORS = [
+      '#7c6fcd','#5b8dd9','#4caf87','#d97c5b','#c45b8d',
+      '#8d5bc4','#5bc4b8','#c4a45b','#5b7dc4','#a45bc4',
+    ];
     const maxCount = sortedSites[0][1].count;
     sortedSites.forEach(([domain, info], i) => {
       const pct = Math.round((info.count / maxCount) * 100);
       const timeMs = timeData[domain] || 0;
       const timeStr = timeMs > 0 ? formatTime(timeMs) : '';
+      const letter = domain.replace(/^(www\.)/, '')[0].toUpperCase();
+      const color = AVATAR_COLORS[i % AVATAR_COLORS.length];
 
       const row = document.createElement('div');
       row.className = 'site-row';
       row.innerHTML = `
         <span class="site-rank ${i < 3 ? 'top' : ''}">${i + 1}</span>
-        <div class="site-favicon" id="fav-${i}">
-          <img src="https://www.google.com/s2/favicons?domain=${domain}&sz=32"
-               alt=""
-               onerror="this.parentElement.textContent='🌐'">
-        </div>
+        <div class="site-avatar" style="background:${color}">${letter}</div>
         <div class="site-info">
           <div class="site-domain">${domain}</div>
           <div class="site-bar-wrap">
