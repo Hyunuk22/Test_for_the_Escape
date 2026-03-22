@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CCM 추천 & 차트</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --secondary: #a29bfe;
+      --accent: #fd79a8;
+      --bg: #0d0d1a;
+      --surface: #1a1a2e;
+      --card: #16213e;
+      --text: #e0e0ff;
+      --muted: #8888aa;
+      --gold: #f9ca24;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* NAV */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13, 13, 26, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(108, 92, 231, 0.3);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+    .nav-logo {
+      font-size: 1.4rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .nav-links { display: flex; gap: 1.8rem; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--secondary); }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+      background: radial-gradient(ellipse at 50% 0%, rgba(108,92,231,0.25) 0%, transparent 70%);
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(108,92,231,0.2);
+      border: 1px solid rgba(108,92,231,0.5);
+      color: var(--secondary);
+      padding: 0.3rem 1rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      margin-bottom: 1.2rem;
+      letter-spacing: 0.05em;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--secondary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 520px;
+      margin: 0 auto 2rem;
+    }
+    .hero-btn {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      padding: 0.75rem 2rem;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(108,92,231,0.4);
+    }
+    .hero-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(108,92,231,0.5); }
+
+    /* SECTION */
+    section { padding: 4rem 2rem; max-width: 1200px; margin: 0 auto; }
+    .section-title {
+      font-size: 1.7rem;
+      font-weight: 800;
+      margin-bottom: 0.4rem;
+    }
+    .section-sub {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 2.5rem;
+    }
+    .accent-dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-right: 0.5rem;
+    }
+
+    /* CHARTS GRID */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 2rem;
+    }
+    .chart-card {
+      background: var(--card);
+      border: 1px solid rgba(108,92,231,0.2);
+      border-radius: 16px;
+      padding: 1.8rem;
+    }
+    .chart-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 1.2rem;
+      color: var(--secondary);
+    }
+    .chart-wrap { position: relative; height: 280px; }
+
+    /* TOP SONGS TABLE */
+    .songs-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+    }
+    .songs-table th {
+      text-align: left;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0 1rem 0.8rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .songs-table td {
+      padding: 0.9rem 1rem 0.9rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 0.9rem;
+    }
+    .rank {
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--muted);
+      width: 30px;
+    }
+    .rank.top { color: var(--gold); }
+    .song-info { display: flex; flex-direction: column; }
+    .song-title { font-weight: 700; }
+    .song-artist { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+    .bar-cell { width: 100px; }
+    .mini-bar-bg {
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      height: 6px;
+      overflow: hidden;
+    }
+    .mini-bar {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+    .plays { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+
+    /* RECOMMENDATION CARDS */
+    .rec-filters {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    .filter-btn {
+      background: rgba(108,92,231,0.12);
+      border: 1px solid rgba(108,92,231,0.3);
+      color: var(--muted);
+      padding: 0.4rem 1.1rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+    .rec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.4rem;
+    }
+    .rec-card {
+      background: var(--card);
+      border: 1px solid rgba(108,92,231,0.15);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s;
+      cursor: pointer;
+    }
+    .rec-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(108,92,231,0.5);
+    }
+    .rec-card-thumb {
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+    .rec-card-body { padding: 1rem 1.2rem 1.2rem; }
+    .rec-card-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.25rem; }
+    .rec-card-artist { color: var(--muted); font-size: 0.82rem; margin-bottom: 0.8rem; }
+    .rec-card-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .tag {
+      background: rgba(108,92,231,0.15);
+      color: var(--secondary);
+      font-size: 0.72rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+    }
+    .tag.mood { background: rgba(253,121,168,0.15); color: var(--accent); }
+
+    /* HIDDEN for filter */
+    .rec-card.hidden { display: none; }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    footer a { color: var(--secondary); text-decoration: none; }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">✝ CCM 차트</div>
+  <div class="nav-links">
+    <a href="#charts">차트</a>
+    <a href="#songs">인기 곡</a>
+    <a href="#recommend">추천</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">🎵 국내 CCM 트렌드 2024–2025</div>
+  <h1>하나님을 향한<br /><span>찬양의 흐름</span>을 만나보세요</h1>
+  <p>국내에서 가장 많이 사랑받는 CCM 아티스트와 곡들을 한눈에 확인하고, 당신의 예배에 맞는 찬양을 발견하세요.</p>
+  <a href="#recommend" class="hero-btn">곡 추천 받기 ↓</a>
+</div>
+
+<!-- CHARTS -->
+<section id="charts">
+  <div><span class="accent-dot"></span><span class="section-title">아티스트 인기 차트</span></div>
+  <p class="section-sub">국내 CCM 청취 데이터 기반 (2024–2025 추정)</p>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>📊 아티스트별 인기 지수</h3>
+      <div class="chart-wrap">
+        <canvas id="artistChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>🎭 장르 분포</h3>
+      <div class="chart-wrap">
+        <canvas id="genreChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card" style="grid-column: 1 / -1;">
+      <h3>📈 월별 청취 트렌드 (2024)</h3>
+      <div class="chart-wrap" style="height:220px;">
+        <canvas id="trendChart"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOP SONGS -->
+<section id="songs">
+  <div><span class="accent-dot"></span><span class="section-title">인기 곡 TOP 15</span></div>
+  <p class="section-sub">요즘 가장 많이 듣고 있는 CCM 곡들</p>
+  <div class="chart-card">
+    <table class="songs-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>곡 정보</th>
+          <th class="bar-cell">인기도</th>
+          <th>재생</th>
+        </tr>
+      </thead>
+      <tbody id="songsList"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- RECOMMENDATION -->
+<section id="recommend">
+  <div><span class="accent-dot"></span><span class="section-title">곡 추천</span></div>
+  <p class="section-sub">분위기와 상황에 맞는 CCM을 골라보세요</p>
+  <div class="rec-filters">
+    <button class="filter-btn active" data-filter="all">전체</button>
+    <button class="filter-btn" data-filter="worship">예배</button>
+    <button class="filter-btn" data-filter="praise">찬양</button>
+    <button class="filter-btn" data-filter="comfort">위로</button>
+    <button class="filter-btn" data-filter="morning">아침</button>
+    <button class="filter-btn" data-filter="quiet">묵상</button>
+  </div>
+  <div class="rec-grid" id="recGrid"></div>
+</section>
+
+<footer>
+  <p>✝ CCM 차트 &nbsp;|&nbsp; 데이터는 유튜브 · 멜론 · 스포티파이 기반 추정치입니다</p>
+  <p style="margin-top:0.5rem;">Made with ♥ for worship</p>
+</footer>
+
+<script>
+/* ===== DATA ===== */
+const artists = [
+  { name: '마커스워십',  score: 98 },
+  { name: '어노인팅',    score: 91 },
+  { name: '예수전도단',  score: 87 },
+  { name: '소망의빛',    score: 75 },
+  { name: '강찬',        score: 72 },
+  { name: '이은상',      score: 68 },
+  { name: '박종호',      score: 64 },
+  { name: '하나님의사람들', score: 60 },
+];
+
+const genres = [
+  { label: '현대 워십', value: 38 },
+  { label: '찬양 발라드', value: 26 },
+  { label: '복음성가', value: 18 },
+  { label: '경배와찬양', value: 12 },
+  { label: '기타', value: 6 },
+];
+
+const monthlyTrend = {
+  labels: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+  markers:  [72,68,75,80,85,88,82,79,84,90,94,98],
+  anointing:[60,63,65,70,72,75,68,66,70,73,78,82],
+  ywam:     [55,57,60,63,65,68,62,59,64,67,72,75],
+};
+
+const topSongs = [
+  { rank:1,  title:'주 나의 하나님',        artist:'마커스워십',  plays:'2.1M', pct:100 },
+  { rank:2,  title:'찬양해 내 영혼아',       artist:'마커스워십',  plays:'1.8M', pct:86  },
+  { rank:3,  title:'오직 주만이',            artist:'어노인팅',    plays:'1.6M', pct:76  },
+  { rank:4,  title:'하나님 한 분만으로',     artist:'어노인팅',    plays:'1.4M', pct:67  },
+  { rank:5,  title:'할렐루야 (찬양하라)',    artist:'예수전도단',  plays:'1.3M', pct:62  },
+  { rank:6,  title:'나의 피난처',            artist:'마커스워십',  plays:'1.1M', pct:52  },
+  { rank:7,  title:'주를 찾으리',            artist:'예수전도단',  plays:'980K', pct:47  },
+  { rank:8,  title:'은혜 아니면',            artist:'강찬',        plays:'870K', pct:41  },
+  { rank:9,  title:'너는 내 것이라',         artist:'이은상',      plays:'820K', pct:39  },
+  { rank:10, title:'나의 영혼이 잠잠히',     artist:'어노인팅',    plays:'760K', pct:36  },
+  { rank:11, title:'주의 영이 내게',         artist:'마커스워십',  plays:'710K', pct:34  },
+  { rank:12, title:'하나님이시여',           artist:'박종호',      plays:'650K', pct:31  },
+  { rank:13, title:'사랑해요 목소리 높여',   artist:'예수전도단',  plays:'600K', pct:29  },
+  { rank:14, title:'구원의 기쁨',            artist:'소망의빛',    plays:'540K', pct:26  },
+  { rank:15, title:'주님의 마음을 본 받아',  artist:'하나님의사람들', plays:'490K', pct:23 },
+];
+
+const recSongs = [
+  { emoji:'🙏', bg:'linear-gradient(135deg,#6c5ce7,#a29bfe)', title:'주 나의 하나님', artist:'마커스워십', tags:['worship','praise'], moods:['예배','찬양'] },
+  { emoji:'✨', bg:'linear-gradient(135deg,#fd79a8,#e84393)', title:'찬양해 내 영혼아', artist:'마커스워십', tags:['praise'], moods:['찬양','아침'] },
+  { emoji:'🕊️', bg:'linear-gradient(135deg,#00b894,#00cec9)', title:'오직 주만이', artist:'어노인팅', tags:['worship','quiet'], moods:['묵상','위로'] },
+  { emoji:'💙', bg:'linear-gradient(135deg,#0984e3,#74b9ff)', title:'하나님 한 분만으로', artist:'어노인팅', tags:['comfort','quiet'], moods:['위로','묵상'] },
+  { emoji:'🔥', bg:'linear-gradient(135deg,#e17055,#fd79a8)', title:'할렐루야', artist:'예수전도단', tags:['praise','worship'], moods:['찬양','예배'] },
+  { emoji:'🌅', bg:'linear-gradient(135deg,#f9ca24,#f0932b)', title:'나의 피난처', artist:'마커스워십', tags:['morning','comfort'], moods:['아침','위로'] },
+  { emoji:'🌿', bg:'linear-gradient(135deg,#55efc4,#00b894)', title:'주를 찾으리', artist:'예수전도단', tags:['quiet','morning'], moods:['묵상','아침'] },
+  { emoji:'💜', bg:'linear-gradient(135deg,#a29bfe,#6c5ce7)', title:'은혜 아니면', artist:'강찬', tags:['comfort','worship'], moods:['위로','예배'] },
+  { emoji:'🌸', bg:'linear-gradient(135deg,#fd79a8,#a29bfe)', title:'너는 내 것이라', artist:'이은상', tags:['comfort','quiet'], moods:['위로','묵상'] },
+  { emoji:'⭐', bg:'linear-gradient(135deg,#f9ca24,#a29bfe)', title:'나의 영혼이 잠잠히', artist:'어노인팅', tags:['quiet','morning'], moods:['묵상','아침'] },
+  { emoji:'🎵', bg:'linear-gradient(135deg,#74b9ff,#0984e3)', title:'주의 영이 내게', artist:'마커스워십', tags:['worship','praise'], moods:['예배','찬양'] },
+  { emoji:'🏔️', bg:'linear-gradient(135deg,#636e72,#a29bfe)', title:'하나님이시여', artist:'박종호', tags:['worship','quiet'], moods:['예배','묵상'] },
+];
+
+/* ===== CHARTS ===== */
+Chart.defaults.color = '#8888aa';
+Chart.defaults.font.family = "'Segoe UI','Apple SD Gothic Neo',sans-serif";
+
+// Artist Bar Chart
+new Chart(document.getElementById('artistChart'), {
+  type: 'bar',
+  data: {
+    labels: artists.map(a => a.name),
+    datasets: [{
+      label: '인기 지수',
+      data: artists.map(a => a.score),
+      backgroundColor: [
+        'rgba(108,92,231,0.8)','rgba(162,155,254,0.8)','rgba(253,121,168,0.8)',
+        'rgba(116,185,255,0.8)','rgba(85,239,196,0.8)','rgba(249,202,36,0.8)',
+        'rgba(225,112,85,0.8)','rgba(99,110,114,0.8)',
+      ],
+      borderRadius: 8,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { font: { size: 11 } } },
+      y: { grid: { color: 'rgba(255,255,255,0.05)' }, max: 110 },
+    }
+  }
+});
+
+// Genre Doughnut
+new Chart(document.getElementById('genreChart'), {
+  type: 'doughnut',
+  data: {
+    labels: genres.map(g => g.label),
+    datasets: [{
+      data: genres.map(g => g.value),
+      backgroundColor: ['#6c5ce7','#a29bfe','#fd79a8','#74b9ff','#55efc4'],
+      borderWidth: 0,
+      hoverOffset: 8,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    cutout: '60%',
+    plugins: {
+      legend: { position: 'right', labels: { padding: 16, font: { size: 12 } } }
+    }
+  }
+});
+
+// Trend Line Chart
+new Chart(document.getElementById('trendChart'), {
+  type: 'line',
+  data: {
+    labels: monthlyTrend.labels,
+    datasets: [
+      {
+        label: '마커스워십', data: monthlyTrend.markers,
+        borderColor: '#6c5ce7', backgroundColor: 'rgba(108,92,231,0.1)',
+        tension: 0.4, fill: true, pointRadius: 4,
+      },
+      {
+        label: '어노인팅', data: monthlyTrend.anointing,
+        borderColor: '#fd79a8', backgroundColor: 'rgba(253,121,168,0.08)',
+        tension: 0.4, fill: true, pointRadius: 4,
+      },
+      {
+        label: '예수전도단', data: monthlyTrend.ywam,
+        borderColor: '#55efc4', backgroundColor: 'rgba(85,239,196,0.08)',
+        tension: 0.4, fill: true, pointRadius: 4,
+      },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { padding: 20, font: { size: 12 } } } },
+    scales: {
+      x: { grid: { color: 'rgba(255,255,255,0.05)' } },
+      y: { grid: { color: 'rgba(255,255,255,0.05)' }, min: 40, max: 110 },
+    }
+  }
+});
+
+/* ===== TOP SONGS ===== */
+const tbody = document.getElementById('songsList');
+topSongs.forEach(s => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="rank ${s.rank <= 3 ? 'top' : ''}">${s.rank <= 3 ? ['🥇','🥈','🥉'][s.rank-1] : s.rank}</td>
+    <td><div class="song-info"><span class="song-title">${s.title}</span><span class="song-artist">${s.artist}</span></div></td>
+    <td class="bar-cell"><div class="mini-bar-bg"><div class="mini-bar" style="width:${s.pct}%"></div></div></td>
+    <td class="plays">${s.plays}</td>
+  `;
+  tbody.appendChild(tr);
+});
+
+/* ===== RECOMMENDATIONS ===== */
+const tagMap = {
+  worship: 'worship', praise: 'praise',
+  comfort: 'comfort', morning: 'morning', quiet: 'quiet'
+};
+
+function renderRec(filter) {
+  const grid = document.getElementById('recGrid');
+  grid.innerHTML = '';
+  recSongs.forEach(s => {
+    if (filter !== 'all' && !s.tags.includes(filter)) return;
+    const card = document.createElement('div');
+    card.className = 'rec-card';
+    card.innerHTML = `
+      <div class="rec-card-thumb" style="background:${s.bg}">${s.emoji}</div>
+      <div class="rec-card-body">
+        <div class="rec-card-title">${s.title}</div>
+        <div class="rec-card-artist">${s.artist}</div>
+        <div class="rec-card-tags">
+          ${s.moods.map(m => `<span class="tag mood">${m}</span>`).join('')}
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+renderRec('all');
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderRec(btn.dataset.filter);
+  });
+});
+</script>
+</body>
+</html>
