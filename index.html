@@ -3,794 +3,219 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CCM 추천 & 차트</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>오늘의 활동 분석기 — Chrome 확장 프로그램</title>
   <style>
     :root {
-      --primary: #8b6f47;
-      --secondary: #c9a96e;
-      --accent: #e8d5a3;
-      --gold: #d4a843;
-      --bg: #0e0c0a;
-      --surface: #1a1510;
-      --card: rgba(255,255,255,0.04);
-      --card-border: rgba(201,169,110,0.18);
-      --text: #f0ead8;
-      --muted: #9a9080;
+      --bg: #0c0c14;
+      --surface: #13131f;
+      --card: #1a1a2a;
+      --border: rgba(255,255,255,0.08);
+      --accent: #a78bfa;
+      --accent2: #7c6fcd;
+      --text: #e2e4f0;
+      --muted: #6b7280;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
       background: var(--bg);
       color: var(--text);
       line-height: 1.6;
-      overflow-x: hidden;
     }
 
-    /* ── BACKGROUND ── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background:
-        url('https://images.unsplash.com/photo-1478147427282-58a87a433b2f?w=1800&q=80')
-        center / cover no-repeat;
-      opacity: 0.18;
-      z-index: 0;
-      pointer-events: none;
-    }
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(212,168,67,0.10) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 50% 100%, rgba(139,111,71,0.12) 0%, transparent 60%),
-        linear-gradient(180deg, rgba(14,12,10,0.55) 0%, rgba(14,12,10,0.40) 50%, rgba(14,12,10,0.70) 100%);
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    /* ── NAV ── */
+    /* NAV */
     nav {
-      position: sticky;
-      top: 0;
-      z-index: 200;
-      background: rgba(14,12,10,0.82);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(201,169,110,0.15);
-      padding: 0 2.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 58px;
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(12,12,20,0.9);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
     }
-    .nav-logo {
-      font-size: 1.2rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      color: var(--gold);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+    .nav-logo { font-weight: 800; font-size: 1rem; color: var(--accent); }
+    .nav-badge {
+      font-size: 0.7rem; background: rgba(167,139,250,0.15);
+      border: 1px solid rgba(167,139,250,0.3); color: var(--accent);
+      padding: 0.2rem 0.7rem; border-radius: 999px;
     }
-    .nav-logo svg { opacity: 0.9; }
-    .nav-links { display: flex; gap: 2rem; }
-    .nav-links a {
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 0.88rem;
-      letter-spacing: 0.03em;
-      transition: color 0.2s;
-    }
-    .nav-links a:hover { color: var(--accent); }
 
-    /* ── HERO ── */
+    /* HERO */
     .hero {
-      position: relative;
-      z-index: 1;
-      min-height: 92vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
       text-align: center;
-      padding: 5rem 2rem 6rem;
-      background:
-        url('https://images.unsplash.com/photo-1519181258491-889d2a1d1bdb?w=1800&q=80')
-        center / cover no-repeat;
-      /* holy light overlay */
+      padding: 7rem 2rem 5rem;
+      background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(124,111,205,0.18) 0%, transparent 65%);
     }
-    .hero-overlay {
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 70% 80% at 50% 30%, rgba(212,168,67,0.12) 0%, transparent 65%),
-        linear-gradient(180deg, rgba(14,12,10,0.70) 0%, rgba(14,12,10,0.50) 40%, rgba(14,12,10,0.85) 100%);
+    .hero-icon {
+      font-size: 3rem; margin-bottom: 1.2rem;
+      filter: drop-shadow(0 0 20px rgba(167,139,250,0.5));
+      animation: float 3s ease-in-out infinite;
     }
-    .hero-content { position: relative; z-index: 2; max-width: 680px; }
-    .hero-cross {
-      font-size: 2.2rem;
-      margin-bottom: 1.2rem;
-      filter: drop-shadow(0 0 24px rgba(212,168,67,0.6));
-      animation: glow-pulse 3s ease-in-out infinite;
-    }
-    @keyframes glow-pulse {
-      0%,100% { filter: drop-shadow(0 0 24px rgba(212,168,67,0.5)); }
-      50%      { filter: drop-shadow(0 0 40px rgba(212,168,67,0.9)); }
-    }
-    .hero-badge {
-      display: inline-block;
-      border: 1px solid rgba(201,169,110,0.4);
-      color: var(--secondary);
-      padding: 0.3rem 1.1rem;
-      border-radius: 999px;
-      font-size: 0.78rem;
-      letter-spacing: 0.1em;
-      margin-bottom: 1.4rem;
-      background: rgba(201,169,110,0.07);
-      text-transform: uppercase;
-    }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
     .hero h1 {
-      font-size: clamp(2.2rem, 5.5vw, 3.8rem);
-      font-weight: 900;
-      line-height: 1.15;
-      letter-spacing: -0.01em;
-      margin-bottom: 1.2rem;
-      text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 900; line-height: 1.2;
+      margin-bottom: 1rem;
     }
-    .hero h1 em {
-      font-style: normal;
-      color: var(--gold);
-      text-shadow: 0 0 30px rgba(212,168,67,0.4);
-    }
-    .hero p {
-      color: rgba(240,234,216,0.7);
-      font-size: 1.05rem;
-      max-width: 480px;
-      margin: 0 auto 2.5rem;
-      line-height: 1.75;
-    }
-    .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-    .btn-primary {
-      background: linear-gradient(135deg, #c9a96e, #d4a843);
-      color: #1a1510;
-      padding: 0.75rem 2rem;
-      border-radius: 999px;
-      text-decoration: none;
-      font-weight: 800;
-      font-size: 0.9rem;
-      letter-spacing: 0.03em;
-      box-shadow: 0 4px 24px rgba(212,168,67,0.35);
+    .hero h1 span { color: var(--accent); }
+    .hero p { color: var(--muted); max-width: 480px; margin: 0 auto 2.5rem; font-size: 1rem; }
+    .hero-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: linear-gradient(135deg, #6d5bd0, #a78bfa);
+      color: white; padding: 0.8rem 2.2rem;
+      border-radius: 999px; text-decoration: none;
+      font-weight: 700; font-size: 0.95rem;
+      box-shadow: 0 4px 24px rgba(109,91,208,0.4);
       transition: all 0.2s;
     }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(212,168,67,0.5); }
-    .btn-ghost {
-      border: 1px solid rgba(201,169,110,0.4);
-      color: var(--accent);
-      padding: 0.75rem 2rem;
-      border-radius: 999px;
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: all 0.2s;
-    }
-    .btn-ghost:hover { background: rgba(201,169,110,0.1); }
+    .hero-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(109,91,208,0.55); }
 
-    .scroll-hint {
-      position: absolute;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
-      color: rgba(201,169,110,0.5);
-      font-size: 0.78rem;
-      letter-spacing: 0.08em;
-      z-index: 2;
-      animation: bounce 2s ease infinite;
+    /* PREVIEW */
+    .preview-wrap {
+      max-width: 900px; margin: 3rem auto; padding: 0 2rem;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem;
     }
-    @keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0);} 50%{transform:translateX(-50%) translateY(6px);} }
+    .preview-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.4rem; text-align: left;
+    }
+    .preview-card .icon { font-size: 1.6rem; margin-bottom: 0.7rem; }
+    .preview-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .preview-card p { font-size: 0.82rem; color: var(--muted); }
 
-    /* ── SECTION WRAPPER ── */
-    .section-wrap {
-      position: relative;
-      z-index: 1;
-      padding: 5rem 2rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    .section-header { margin-bottom: 2.8rem; }
-    .section-eyebrow {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
+    /* STEPS */
+    .steps-wrap { max-width: 640px; margin: 0 auto; padding: 4rem 2rem; }
+    .steps-title {
+      text-align: center; font-size: 1.5rem; font-weight: 800;
       margin-bottom: 0.5rem;
     }
-    .eyebrow-line {
-      width: 28px; height: 1px;
-      background: var(--gold);
-      opacity: 0.7;
+    .steps-sub { text-align: center; color: var(--muted); font-size: 0.88rem; margin-bottom: 2.5rem; }
+
+    .step {
+      display: flex; gap: 1.2rem;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.2rem 1.4rem;
+      margin-bottom: 0.8rem;
+      align-items: flex-start;
     }
-    .eyebrow-text {
-      font-size: 0.72rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--gold);
-      opacity: 0.85;
+    .step-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, #6d5bd0, #a78bfa);
+      color: white; font-weight: 800; font-size: 0.85rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
     }
-    .section-title {
-      font-size: 1.9rem;
-      font-weight: 800;
-      letter-spacing: -0.01em;
-    }
-    .section-sub {
-      color: var(--muted);
-      font-size: 0.88rem;
-      margin-top: 0.4rem;
+    .step h4 { font-size: 0.92rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .step p { font-size: 0.8rem; color: var(--muted); }
+    .step code {
+      display: inline-block; margin-top: 0.4rem;
+      background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+      border-radius: 6px; padding: 0.2rem 0.6rem;
+      font-family: 'Consolas', monospace; font-size: 0.78rem; color: var(--accent);
     }
 
-    /* divider */
+    /* DIVIDER */
     .divider {
-      position: relative;
-      z-index: 1;
       height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(201,169,110,0.2), transparent);
+      background: linear-gradient(90deg, transparent, rgba(167,139,250,0.2), transparent);
       margin: 0 2rem;
     }
 
-    /* ── ARTIST CARDS ── */
-    .artist-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1.2rem;
-      margin-bottom: 3rem;
-    }
-    .artist-card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
-      overflow: hidden;
-      transition: transform 0.2s, border-color 0.2s;
-      backdrop-filter: blur(8px);
-    }
-    .artist-card:hover { transform: translateY(-4px); border-color: rgba(201,169,110,0.45); }
-    .artist-img {
-      width: 100%;
-      aspect-ratio: 1;
-      object-fit: cover;
-      display: block;
-    }
-    .artist-img-placeholder {
-      width: 100%;
-      aspect-ratio: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.8rem;
-      background: linear-gradient(135deg, rgba(139,111,71,0.3), rgba(212,168,67,0.2));
-    }
-    .artist-info { padding: 0.9rem 1rem; }
-    .artist-name { font-weight: 700; font-size: 0.92rem; margin-bottom: 0.2rem; }
-    .artist-desc { font-size: 0.75rem; color: var(--muted); }
-    .artist-bar-wrap { padding: 0 1rem 1rem; }
-    .artist-bar-bg {
-      background: rgba(255,255,255,0.07);
-      border-radius: 999px;
-      height: 4px;
-      overflow: hidden;
-    }
-    .artist-bar {
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, var(--primary), var(--gold));
-    }
-    .artist-score-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.4rem;
-    }
-    .artist-score { font-size: 0.7rem; color: var(--gold); font-weight: 700; }
-
-    /* ── CHARTS ── */
-    .charts-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 1.6rem;
-    }
-    .chart-card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 1.8rem;
-      backdrop-filter: blur(8px);
-    }
-    .chart-card.wide { grid-column: 1 / -1; }
-    .chart-card h3 {
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: var(--secondary);
-      margin-bottom: 1.4rem;
-      letter-spacing: 0.02em;
-    }
-    .chart-wrap { position: relative; height: 260px; }
-    .chart-wrap.short { height: 200px; }
-
-    /* ── SONGS TABLE ── */
-    .songs-table { width: 100%; border-collapse: collapse; }
-    .songs-table th {
-      text-align: left;
-      font-size: 0.7rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      padding: 0 1rem 1rem 0;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-    .songs-table td {
-      padding: 0.85rem 1rem 0.85rem 0;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-      font-size: 0.88rem;
-      vertical-align: middle;
-    }
-    .songs-table tr:last-child td { border-bottom: none; }
-    .rank { font-weight: 800; font-size: 0.95rem; color: var(--muted); width: 36px; }
-    .rank.gold-rank { color: var(--gold); }
-    .song-cover {
-      width: 44px; height: 44px;
-      border-radius: 8px;
-      overflow: hidden;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.3rem;
-    }
-    .song-cell { display: flex; align-items: center; gap: 0.9rem; }
-    .song-meta { display: flex; flex-direction: column; }
-    .song-title { font-weight: 700; }
-    .song-artist { font-size: 0.76rem; color: var(--muted); margin-top: 1px; }
-    .bar-cell { width: 90px; }
-    .mini-bar-bg { background: rgba(255,255,255,0.07); border-radius: 999px; height: 5px; overflow: hidden; }
-    .mini-bar { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--primary), var(--gold)); }
-    .plays { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
-
-    /* ── RECOMMENDATION ── */
-    .rec-filters { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 2rem; }
-    .filter-btn {
-      background: rgba(201,169,110,0.08);
-      border: 1px solid rgba(201,169,110,0.22);
-      color: var(--muted);
-      padding: 0.4rem 1.2rem;
-      border-radius: 999px;
-      font-size: 0.82rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      letter-spacing: 0.02em;
-    }
-    .filter-btn:hover, .filter-btn.active {
-      background: rgba(212,168,67,0.22);
-      border-color: var(--gold);
-      color: var(--gold);
-    }
-    .rec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1.4rem; }
-    .rec-card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: transform 0.2s, border-color 0.2s;
-      backdrop-filter: blur(8px);
-    }
-    .rec-card:hover { transform: translateY(-4px); border-color: rgba(212,168,67,0.4); }
-    .rec-thumb {
-      height: 150px;
-      object-fit: cover;
-      width: 100%;
-      display: block;
-    }
-    .rec-thumb-placeholder {
-      height: 150px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3.2rem;
-    }
-    .rec-body { padding: 1rem 1.2rem 1.2rem; }
-    .rec-title { font-weight: 700; font-size: 0.92rem; margin-bottom: 0.2rem; }
-    .rec-artist { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.8rem; }
-    .rec-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-    .tag {
-      font-size: 0.7rem;
-      padding: 0.18rem 0.6rem;
-      border-radius: 999px;
-      border: 1px solid rgba(201,169,110,0.25);
-      color: var(--secondary);
-    }
-    .tag.mood { border-color: rgba(212,168,67,0.3); color: var(--gold); }
-
-    /* ── FOOTER ── */
     footer {
-      position: relative;
-      z-index: 1;
-      text-align: center;
-      padding: 3rem 2rem;
-      border-top: 1px solid rgba(201,169,110,0.1);
-      color: var(--muted);
-      font-size: 0.82rem;
-      line-height: 2;
+      text-align: center; padding: 2.5rem;
+      color: var(--muted); font-size: 0.8rem;
     }
 
     ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: rgba(201,169,110,0.3); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.3); border-radius: 3px; }
   </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
-  <div class="nav-logo">
-    <svg width="16" height="20" viewBox="0 0 16 20" fill="none">
-      <rect x="7" y="0" width="2" height="20" rx="1" fill="#d4a843"/>
-      <rect x="2" y="5" width="12" height="2" rx="1" fill="#d4a843"/>
-    </svg>
-    CCM 차트
-  </div>
-  <div class="nav-links">
-    <a href="#artists">아티스트</a>
-    <a href="#charts">차트</a>
-    <a href="#songs">인기 곡</a>
-    <a href="#recommend">추천</a>
-  </div>
+  <div class="nav-logo">◈ 오늘의 활동 분석기</div>
+  <span class="nav-badge">Chrome Extension</span>
 </nav>
 
-<!-- HERO -->
 <div class="hero">
-  <div class="hero-overlay"></div>
-  <div class="hero-content">
-    <div class="hero-cross">✝</div>
-    <div class="hero-badge">국내 CCM 트렌드 2024–2025</div>
-    <h1>하나님을 향한<br /><em>찬양의 흐름</em>을<br />만나보세요</h1>
-    <p>국내에서 가장 많이 사랑받는 CCM 아티스트와 곡들을 한눈에 확인하고, 당신의 예배에 맞는 찬양을 발견하세요.</p>
-    <div class="hero-btns">
-      <a href="#recommend" class="btn-primary">곡 추천 받기</a>
-      <a href="#charts" class="btn-ghost">차트 보기</a>
-    </div>
-  </div>
-  <div class="scroll-hint">↓ scroll</div>
+  <div class="hero-icon">◈</div>
+  <h1>오늘 하루<br/><span>내가 뭘 했는지</span><br/>한눈에 보기</h1>
+  <p>브라우저 방문 기록을 분석해 사이트별 활동, 시간대별 패턴, 오늘의 관심 키워드를 시각화해드립니다.</p>
+  <a href="https://github.com/Hyunuk22/Test_for_the_Escape" class="hero-btn">
+    ↓ GitHub에서 다운로드
+  </a>
 </div>
 
-<!-- ARTISTS -->
-<div class="divider"></div>
-<div class="section-wrap" id="artists">
-  <div class="section-header">
-    <div class="section-eyebrow"><div class="eyebrow-line"></div><span class="eyebrow-text">Top Artists</span></div>
-    <div class="section-title">국내 인기 CCM 아티스트</div>
-    <div class="section-sub">유튜브·스포티파이·멜론 데이터 기반 인기 지수</div>
+<div class="preview-wrap">
+  <div class="preview-card">
+    <div class="icon">📊</div>
+    <h3>사이트별 활동 분석</h3>
+    <p>오늘 방문한 사이트와 방문 횟수, 체류 시간을 한눈에 확인합니다.</p>
   </div>
-  <div class="artist-grid" id="artistGrid"></div>
-</div>
-
-<!-- CHARTS -->
-<div class="divider"></div>
-<div class="section-wrap" id="charts">
-  <div class="section-header">
-    <div class="section-eyebrow"><div class="eyebrow-line"></div><span class="eyebrow-text">Visualization</span></div>
-    <div class="section-title">데이터 시각화</div>
-    <div class="section-sub">아티스트 인기 지수 · 장르 분포 · 월별 트렌드</div>
+  <div class="preview-card">
+    <div class="icon">🕐</div>
+    <h3>시간대별 히트맵</h3>
+    <p>24시간 중 언제 가장 활발하게 브라우징했는지 시각화합니다.</p>
   </div>
-  <div class="charts-grid">
-    <div class="chart-card">
-      <h3>📊 아티스트별 인기 지수</h3>
-      <div class="chart-wrap"><canvas id="artistChart"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <h3>🎭 장르 분포</h3>
-      <div class="chart-wrap"><canvas id="genreChart"></canvas></div>
-    </div>
-    <div class="chart-card wide">
-      <h3>📈 월별 청취 트렌드 (2024)</h3>
-      <div class="chart-wrap short"><canvas id="trendChart"></canvas></div>
-    </div>
+  <div class="preview-card">
+    <div class="icon">🔍</div>
+    <h3>오늘의 관심사 키워드</h3>
+    <p>방문한 페이지 제목을 분석해 오늘 내가 가장 관심을 가진 주제를 추출합니다.</p>
   </div>
 </div>
 
-<!-- TOP SONGS -->
 <div class="divider"></div>
-<div class="section-wrap" id="songs">
-  <div class="section-header">
-    <div class="section-eyebrow"><div class="eyebrow-line"></div><span class="eyebrow-text">Hot Right Now</span></div>
-    <div class="section-title">인기 곡 TOP 15</div>
-    <div class="section-sub">요즘 가장 많이 듣고 있는 CCM</div>
-  </div>
-  <div class="chart-card">
-    <table class="songs-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th colspan="2">곡 정보</th>
-          <th class="bar-cell">인기도</th>
-          <th>재생수</th>
-        </tr>
-      </thead>
-      <tbody id="songsList"></tbody>
-    </table>
-  </div>
-</div>
 
-<!-- RECOMMENDATION -->
-<div class="divider"></div>
-<div class="section-wrap" id="recommend">
-  <div class="section-header">
-    <div class="section-eyebrow"><div class="eyebrow-line"></div><span class="eyebrow-text">For You</span></div>
-    <div class="section-title">곡 추천</div>
-    <div class="section-sub">분위기와 상황에 맞는 CCM을 골라보세요</div>
+<div class="steps-wrap">
+  <div class="steps-title">설치 방법</div>
+  <div class="steps-sub">Chrome 개발자 모드로 2분 안에 설치할 수 있습니다</div>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div>
+      <h4>저장소 다운로드</h4>
+      <p>GitHub에서 ZIP으로 다운로드하거나 git clone합니다.</p>
+      <code>git clone https://github.com/Hyunuk22/Test_for_the_Escape.git</code>
+    </div>
   </div>
-  <div class="rec-filters">
-    <button class="filter-btn active" data-filter="all">전체</button>
-    <button class="filter-btn" data-filter="worship">예배</button>
-    <button class="filter-btn" data-filter="praise">찬양</button>
-    <button class="filter-btn" data-filter="comfort">위로</button>
-    <button class="filter-btn" data-filter="morning">아침</button>
-    <button class="filter-btn" data-filter="quiet">묵상</button>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div>
+      <h4>Chrome 확장 프로그램 페이지 열기</h4>
+      <p>Chrome 주소창에 아래를 입력하세요.</p>
+      <code>chrome://extensions</code>
+    </div>
   </div>
-  <div class="rec-grid" id="recGrid"></div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div>
+      <h4>개발자 모드 켜기</h4>
+      <p>오른쪽 상단의 <strong>개발자 모드</strong> 토글을 활성화합니다.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div>
+      <h4>압축 해제된 확장 프로그램 로드</h4>
+      <p><strong>압축 해제된 항목 로드</strong>를 클릭하고 다운로드한 폴더 안의 <code>extension/</code> 폴더를 선택합니다.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">5</div>
+    <div>
+      <h4>확장 프로그램 아이콘 클릭</h4>
+      <p>Chrome 툴바의 퍼즐 아이콘 → <strong>오늘의 활동 분석기</strong>를 핀하고 클릭하면 바로 시작됩니다.</p>
+    </div>
+  </div>
 </div>
 
 <footer>
-  <svg width="14" height="18" viewBox="0 0 14 18" fill="none" style="opacity:0.4;margin-bottom:0.5rem;">
-    <rect x="6" y="0" width="2" height="18" rx="1" fill="#d4a843"/>
-    <rect x="1" y="5" width="12" height="2" rx="1" fill="#d4a843"/>
-  </svg>
-  <p style="color:rgba(201,169,110,0.5);letter-spacing:0.05em;font-size:0.78rem;">CCM CHART</p>
-  <p style="margin-top:0.3rem;">데이터는 유튜브 · 멜론 · 스포티파이 기반 추정치입니다</p>
-  <p style="margin-top:0.2rem;font-size:0.75rem;">Made with ♥ for worship</p>
+  <p>오늘의 활동 분석기 · 방문 기록은 기기 내에서만 처리되며 외부로 전송되지 않습니다</p>
 </footer>
 
-<script>
-/* ── DATA ── */
-const artists = [
-  {
-    name: '마커스워십', score: 98, desc: '현대 워십의 선두주자',
-    emoji: '🎵',
-    gradient: 'linear-gradient(135deg,#4a3728,#8b6f47)',
-    songs: '주 나의 하나님 · 찬양해 내 영혼아',
-    img: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80'
-  },
-  {
-    name: '어노인팅', score: 91, desc: '섬세한 경배와 찬양',
-    emoji: '🕊️',
-    gradient: 'linear-gradient(135deg,#1a2a3a,#2d5986)',
-    songs: '오직 주만이 · 하나님 한 분만으로',
-    img: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&q=80'
-  },
-  {
-    name: '예수전도단', score: 87, desc: 'YWAM Korea 찬양팀',
-    emoji: '🔥',
-    gradient: 'linear-gradient(135deg,#3a1a1a,#863030)',
-    songs: '할렐루야 · 주를 찾으리',
-    img: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&q=80'
-  },
-  {
-    name: '소망의 빛', score: 75, desc: '따뜻한 위로의 찬양',
-    emoji: '☀️',
-    gradient: 'linear-gradient(135deg,#3a3010,#7a6520)',
-    songs: '구원의 기쁨 · 빛 되신 주',
-    img: 'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=400&q=80'
-  },
-  {
-    name: '강찬', score: 72, desc: '감동적인 복음성가',
-    emoji: '🎤',
-    gradient: 'linear-gradient(135deg,#1a2a1a,#2d6b3a)',
-    songs: '은혜 아니면 · 아버지',
-    img: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=400&q=80'
-  },
-  {
-    name: '이은상', score: 68, desc: '은혜로운 찬양사역자',
-    emoji: '✨',
-    gradient: 'linear-gradient(135deg,#2a1a3a,#5c3586)',
-    songs: '너는 내 것이라 · 내 삶의 주인',
-    img: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&q=80'
-  },
-  {
-    name: '박종호', score: 64, desc: '대한민국 CCM의 전설',
-    emoji: '🎼',
-    gradient: 'linear-gradient(135deg,#1a1a2a,#2d3570)',
-    songs: '하나님이시여 · 내가 매일 기쁘게',
-    img: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400&q=80'
-  },
-  {
-    name: '하나님의사람들', score: 60, desc: '공동체 찬양의 힘',
-    emoji: '🙌',
-    gradient: 'linear-gradient(135deg,#2a2010,#6b5520)',
-    songs: '주님의 마음을 본 받아',
-    img: 'https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?w=400&q=80'
-  },
-];
-
-const topSongs = [
-  { rank:1,  title:'주 나의 하나님',        artist:'마커스워십',  plays:'2.1M', pct:100, emoji:'🎵', grad:'linear-gradient(135deg,#4a3728,#8b6f47)' },
-  { rank:2,  title:'찬양해 내 영혼아',       artist:'마커스워십',  plays:'1.8M', pct:86,  emoji:'✨', grad:'linear-gradient(135deg,#4a3728,#c9a96e)' },
-  { rank:3,  title:'오직 주만이',            artist:'어노인팅',    plays:'1.6M', pct:76,  emoji:'🕊️', grad:'linear-gradient(135deg,#1a2a3a,#2d5986)' },
-  { rank:4,  title:'하나님 한 분만으로',     artist:'어노인팅',    plays:'1.4M', pct:67,  emoji:'💙', grad:'linear-gradient(135deg,#1a2a3a,#4a7ab5)' },
-  { rank:5,  title:'할렐루야 (찬양하라)',    artist:'예수전도단',  plays:'1.3M', pct:62,  emoji:'🔥', grad:'linear-gradient(135deg,#3a1a1a,#863030)' },
-  { rank:6,  title:'나의 피난처',            artist:'마커스워십',  plays:'1.1M', pct:52,  emoji:'🌅', grad:'linear-gradient(135deg,#3a2a10,#8b6030)' },
-  { rank:7,  title:'주를 찾으리',            artist:'예수전도단',  plays:'980K', pct:47,  emoji:'🌿', grad:'linear-gradient(135deg,#1a3020,#2d6b3a)' },
-  { rank:8,  title:'은혜 아니면',            artist:'강찬',        plays:'870K', pct:41,  emoji:'🎤', grad:'linear-gradient(135deg,#1a3a20,#3a7050)' },
-  { rank:9,  title:'너는 내 것이라',         artist:'이은상',      plays:'820K', pct:39,  emoji:'💜', grad:'linear-gradient(135deg,#2a1a3a,#6b3a86)' },
-  { rank:10, title:'나의 영혼이 잠잠히',     artist:'어노인팅',    plays:'760K', pct:36,  emoji:'🌙', grad:'linear-gradient(135deg,#1a1a2a,#2d2d50)' },
-  { rank:11, title:'주의 영이 내게',         artist:'마커스워십',  plays:'710K', pct:34,  emoji:'⭐', grad:'linear-gradient(135deg,#3a2a10,#7a5a20)' },
-  { rank:12, title:'하나님이시여',           artist:'박종호',      plays:'650K', pct:31,  emoji:'🎼', grad:'linear-gradient(135deg,#1a1a3a,#303070)' },
-  { rank:13, title:'사랑해요 목소리 높여',   artist:'예수전도단',  plays:'600K', pct:29,  emoji:'❤️', grad:'linear-gradient(135deg,#3a1a20,#863050)' },
-  { rank:14, title:'구원의 기쁨',            artist:'소망의빛',    plays:'540K', pct:26,  emoji:'☀️', grad:'linear-gradient(135deg,#3a3010,#7a6020)' },
-  { rank:15, title:'주님의 마음을 본 받아',  artist:'하나님의사람들', plays:'490K', pct:23, emoji:'🙏', grad:'linear-gradient(135deg,#2a2010,#5a4a20)' },
-];
-
-const recSongs = [
-  { emoji:'🎵', grad:'linear-gradient(135deg,#3a2818,#8b6f47)', title:'주 나의 하나님', artist:'마커스워십', tags:['worship','praise'], moods:['예배','찬양'],
-    img:'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80' },
-  { emoji:'✨', grad:'linear-gradient(135deg,#2a1810,#c9a96e)', title:'찬양해 내 영혼아', artist:'마커스워십', tags:['praise','morning'], moods:['찬양','아침'],
-    img:'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&q=80' },
-  { emoji:'🕊️', grad:'linear-gradient(135deg,#101a2a,#2d5986)', title:'오직 주만이', artist:'어노인팅', tags:['worship','quiet'], moods:['묵상','위로'],
-    img:'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=400&q=80' },
-  { emoji:'💙', grad:'linear-gradient(135deg,#101a2a,#4a7ab5)', title:'하나님 한 분만으로', artist:'어노인팅', tags:['comfort','quiet'], moods:['위로','묵상'],
-    img:'https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?w=400&q=80' },
-  { emoji:'🔥', grad:'linear-gradient(135deg,#2a1010,#863030)', title:'할렐루야', artist:'예수전도단', tags:['praise','worship'], moods:['찬양','예배'],
-    img:'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&q=80' },
-  { emoji:'🌅', grad:'linear-gradient(135deg,#2a1a08,#c07830)', title:'나의 피난처', artist:'마커스워십', tags:['morning','comfort'], moods:['아침','위로'],
-    img:'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=400&q=80' },
-  { emoji:'🌿', grad:'linear-gradient(135deg,#0a1a10,#2d6b3a)', title:'주를 찾으리', artist:'예수전도단', tags:['quiet','morning'], moods:['묵상','아침'],
-    img:'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400&q=80' },
-  { emoji:'💜', grad:'linear-gradient(135deg,#1a0a2a,#6b3a86)', title:'은혜 아니면', artist:'강찬', tags:['comfort','worship'], moods:['위로','예배'],
-    img:'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&q=80' },
-  { emoji:'🌸', grad:'linear-gradient(135deg,#2a1020,#7a3060)', title:'너는 내 것이라', artist:'이은상', tags:['comfort','quiet'], moods:['위로','묵상'],
-    img:'https://images.unsplash.com/photo-1516981879613-9f5da904015f?w=400&q=80' },
-  { emoji:'⭐', grad:'linear-gradient(135deg,#2a2010,#7a6020)', title:'나의 영혼이 잠잠히', artist:'어노인팅', tags:['quiet','morning'], moods:['묵상','아침'],
-    img:'https://images.unsplash.com/photo-1519181258491-889d2a1d1bdb?w=400&q=80' },
-  { emoji:'🎵', grad:'linear-gradient(135deg,#1a2a10,#4a6b28)', title:'주의 영이 내게', artist:'마커스워십', tags:['worship','praise'], moods:['예배','찬양'],
-    img:'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80' },
-  { emoji:'🏔️', grad:'linear-gradient(135deg,#1a1a1a,#4a4a6b)', title:'하나님이시여', artist:'박종호', tags:['worship','quiet'], moods:['예배','묵상'],
-    img:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80' },
-];
-
-/* ── RENDER ARTISTS ── */
-const grid = document.getElementById('artistGrid');
-artists.forEach(a => {
-  grid.innerHTML += `
-    <div class="artist-card">
-      <img class="artist-img" src="${a.img}" alt="${a.name}" loading="lazy"
-           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <div class="artist-img-placeholder" style="display:none;background:${a.gradient}">${a.emoji}</div>
-      <div class="artist-info">
-        <div class="artist-name">${a.name}</div>
-        <div class="artist-desc">${a.desc}</div>
-      </div>
-      <div class="artist-bar-wrap">
-        <div class="artist-score-row">
-          <span style="font-size:0.68rem;color:var(--muted);">${a.songs}</span>
-          <span class="artist-score">${a.score}</span>
-        </div>
-        <div class="artist-bar-bg"><div class="artist-bar" style="width:${a.score}%"></div></div>
-      </div>
-    </div>`;
-});
-
-/* ── CHARTS ── */
-Chart.defaults.color = '#9a9080';
-Chart.defaults.font.family = "'Segoe UI','Apple SD Gothic Neo',sans-serif";
-
-const goldPalette = ['#d4a843','#c9a96e','#8b6f47','#a07840','#b8943a','#7a6035','#e8c870','#6b5228'];
-
-new Chart(document.getElementById('artistChart'), {
-  type: 'bar',
-  data: {
-    labels: artists.map(a => a.name),
-    datasets: [{ label: '인기 지수', data: artists.map(a => a.score),
-      backgroundColor: goldPalette.map(c => c + 'cc'),
-      borderRadius: 8, borderSkipped: false }]
-  },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { font: { size: 10 } } },
-      y: { grid: { color: 'rgba(255,255,255,0.04)' }, max: 110 }
-    }
-  }
-});
-
-new Chart(document.getElementById('genreChart'), {
-  type: 'doughnut',
-  data: {
-    labels: ['현대 워십','찬양 발라드','복음성가','경배와찬양','기타'],
-    datasets: [{ data: [38,26,18,12,6],
-      backgroundColor: ['#d4a843','#c9a96e','#8b6f47','#a07840','#6b5228'],
-      borderWidth: 0, hoverOffset: 8 }]
-  },
-  options: {
-    responsive: true, maintainAspectRatio: false, cutout: '62%',
-    plugins: { legend: { position: 'right', labels: { padding: 14, font: { size: 11 } } } }
-  }
-});
-
-new Chart(document.getElementById('trendChart'), {
-  type: 'line',
-  data: {
-    labels: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
-    datasets: [
-      { label:'마커스워십', data:[72,68,75,80,85,88,82,79,84,90,94,98],
-        borderColor:'#d4a843', backgroundColor:'rgba(212,168,67,0.08)', tension:0.4, fill:true, pointRadius:3 },
-      { label:'어노인팅',   data:[60,63,65,70,72,75,68,66,70,73,78,82],
-        borderColor:'#c9a96e', backgroundColor:'rgba(201,169,110,0.06)', tension:0.4, fill:true, pointRadius:3 },
-      { label:'예수전도단', data:[55,57,60,63,65,68,62,59,64,67,72,75],
-        borderColor:'#8b6f47', backgroundColor:'rgba(139,111,71,0.06)', tension:0.4, fill:true, pointRadius:3 },
-    ]
-  },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { position:'top', labels: { padding:18, font:{ size:11 } } } },
-    scales: {
-      x: { grid: { color:'rgba(255,255,255,0.04)' } },
-      y: { grid: { color:'rgba(255,255,255,0.04)' }, min:40, max:110 }
-    }
-  }
-});
-
-/* ── SONGS TABLE ── */
-const tbody = document.getElementById('songsList');
-topSongs.forEach(s => {
-  const rankLabel = s.rank <= 3 ? ['🥇','🥈','🥉'][s.rank-1] : s.rank;
-  tbody.innerHTML += `
-    <tr>
-      <td class="rank ${s.rank<=3?'gold-rank':''}">${rankLabel}</td>
-      <td>
-        <div class="song-cell">
-          <div class="song-cover" style="background:${s.grad}">${s.emoji}</div>
-          <div class="song-meta">
-            <span class="song-title">${s.title}</span>
-            <span class="song-artist">${s.artist}</span>
-          </div>
-        </div>
-      </td>
-      <td class="bar-cell"><div class="mini-bar-bg"><div class="mini-bar" style="width:${s.pct}%"></div></div></td>
-      <td class="plays">${s.plays}</td>
-    </tr>`;
-});
-
-/* ── RECOMMENDATIONS ── */
-function renderRec(filter) {
-  const g = document.getElementById('recGrid');
-  g.innerHTML = '';
-  recSongs.forEach(s => {
-    if (filter !== 'all' && !s.tags.includes(filter)) return;
-    g.innerHTML += `
-      <div class="rec-card">
-        <img class="rec-thumb" src="${s.img}" alt="${s.title}" loading="lazy"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="rec-thumb-placeholder" style="display:none;background:${s.grad}">${s.emoji}</div>
-        <div class="rec-body">
-          <div class="rec-title">${s.title}</div>
-          <div class="rec-artist">${s.artist}</div>
-          <div class="rec-tags">
-            ${s.moods.map(m => `<span class="tag mood">${m}</span>`).join('')}
-          </div>
-        </div>
-      </div>`;
-  });
-}
-renderRec('all');
-
-document.querySelectorAll('.filter-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderRec(btn.dataset.filter);
-  });
-});
-</script>
 </body>
 </html>
