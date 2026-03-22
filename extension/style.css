@@ -27,17 +27,16 @@ body {
 }
 
 /* ── VIEWS ── */
-.view { display: none; }
-.view.active { display: block; }
+.view { display: none !important; }
+.view.active { display: block !important; }
 
 /* ── SPLASH ── */
-#view-splash {
+#view-splash.active {
+  display: flex !important;
   min-height: 380px;
-  display: flex;
   align-items: center;
   justify-content: center;
 }
-#view-splash.active { display: flex; }
 
 .splash-inner {
   text-align: center;
@@ -94,13 +93,12 @@ body {
 }
 
 /* ── LOADING ── */
-#view-loading {
+#view-loading.active {
+  display: flex !important;
   min-height: 300px;
-  display: flex;
   align-items: center;
   justify-content: center;
 }
-#view-loading.active { display: flex; }
 
 .loading-inner { text-align: center; }
 

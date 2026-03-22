@@ -72,10 +72,7 @@ function setLoadingMsg(msg) {
 // ── 분석 ──────────────────────────────────────────────
 async function analyze() {
   showView('view-loading');
-  await sleep(300);
-
-  setLoadingMsg('오늘의 방문 기록 불러오는 중');
-  await sleep(500);
+  setLoadingMsg('방문 기록 분석 중');
 
   const todayStart = getTodayStart();
 
@@ -90,9 +87,6 @@ async function analyze() {
   } catch (e) {
     console.error('history error', e);
   }
-
-  setLoadingMsg('사이트별 활동 집계 중');
-  await sleep(400);
 
   // 2. 체류 시간 데이터
   const today = new Date().toDateString();
@@ -116,9 +110,6 @@ async function analyze() {
     }
   });
 
-  setLoadingMsg('관심 키워드 분석 중');
-  await sleep(400);
-
   // 4. 키워드 추출
   const keywords = extractKeywords(historyItems);
 
@@ -130,13 +121,8 @@ async function analyze() {
   const totalVisits = historyItems.length;
   const totalTime = Object.values(timeData).reduce((a, b) => a + b, 0);
 
-  await sleep(300);
   renderDashboard({ sortedSites, timeData, hourMap, keywords, totalVisits, totalTime });
   showView('view-dashboard');
-}
-
-function sleep(ms) {
-  return new Promise(r => setTimeout(r, ms));
 }
 
 // ── 렌더링 ─────────────────────────────────────────────
