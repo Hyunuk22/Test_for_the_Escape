@@ -1,0 +1,12 @@
+{
+  "name": "activity-analyzer",
+  "version": "1.0.0",
+  "description": "오늘의 데스크탑 활동 분석기",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "electron": "^28.0.0"
+  }
+}

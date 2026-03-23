@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>오늘의 활동 분석기</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── SPLASH ── -->
+  <div id="view-splash" class="view active">
+    <div class="splash-inner">
+      <div class="splash-icon">◈</div>
+      <h1>오늘의 활동 분석기</h1>
+      <p>오늘 하루 어떤 앱을 얼마나 사용했는지,<br/>어떤 주제에 집중했는지 분석해드립니다.</p>
+      <div class="permission-box" id="permission-box" style="display:none">
+        <div class="perm-icon">🔐</div>
+        <div>
+          <strong>손쉬운 사용 권한이 필요합니다</strong>
+          <p>시스템 환경설정 → 손쉬운 사용에서 이 앱을 허용해주세요.</p>
+        </div>
+        <button class="btn-perm" id="btn-perm">권한 설정 열기</button>
+      </div>
+      <button class="btn-main" id="btn-start">분석을 시작할까요?</button>
+      <p class="splash-note">앱 사용 시간 · 활동 패턴 · 관심 키워드를 분석합니다</p>
+    </div>
+  </div>
+
+  <!-- ── LOADING ── -->
+  <div id="view-loading" class="view">
+    <div class="loading-inner">
+      <div class="spinner">
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring r2"></div>
+        <div class="spinner-ring r3"></div>
+      </div>
+      <p class="loading-text" id="loading-msg">활동 데이터 집계 중</p>
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+
+  <!-- ── DASHBOARD ── -->
+  <div id="view-dashboard" class="view">
+
+    <div class="dash-header">
+      <div class="header-left">
+        <div class="dash-logo">◈</div>
+        <div>
+          <div class="dash-date" id="dash-date"></div>
+          <div class="dash-title">오늘의 활동 리포트</div>
+        </div>
+      </div>
+      <button class="btn-refresh" id="btn-refresh">↺ 새로고침</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-icon">⏱</div>
+        <div class="stat-value" id="stat-time">-</div>
+        <div class="stat-label">총 활성 시간</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🏆</div>
+        <div class="stat-value" id="stat-top">-</div>
+        <div class="stat-label">가장 많이 쓴 앱</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🔀</div>
+        <div class="stat-value" id="stat-switch">-</div>
+        <div class="stat-label">앱 전환 횟수</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📱</div>
+        <div class="stat-value" id="stat-apps">-</div>
+        <div class="stat-label">사용한 앱 수</div>
+      </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="main-grid">
+
+      <!-- App Usage Chart -->
+      <div class="card chart-card">
+        <div class="card-title">앱별 사용 시간</div>
+        <div class="chart-wrap">
+          <canvas id="appChart"></canvas>
+        </div>
+      </div>
+
+      <!-- App List -->
+      <div class="card">
+        <div class="card-title">상세 목록</div>
+        <div id="app-list" class="app-list"></div>
+      </div>
+
+    </div>
+
+    <!-- Heatmap -->
+    <div class="card heatmap-card">
+      <div class="card-title">시간대별 활동 히트맵</div>
+      <div class="heatmap-wrap">
+        <div id="heatmap" class="heatmap"></div>
+        <div id="heatmap-labels" class="heatmap-labels"></div>
+      </div>
+    </div>
+
+    <!-- Bottom Grid -->
+    <div class="bottom-grid">
+
+      <!-- Timeline -->
+      <div class="card">
+        <div class="card-title">최근 활동 타임라인</div>
+        <div id="timeline" class="timeline"></div>
+      </div>
+
+      <!-- Keywords -->
+      <div class="card">
+        <div class="card-title">오늘의 관심 키워드</div>
+        <div id="keywords" class="keyword-cloud"></div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
