@@ -174,19 +174,22 @@ html, body {
 
 /* ── MODAL ── */
 .modal-overlay {
+  display: none;
   position: fixed; inset: 0; z-index: 200;
   background: rgba(0,0,0,0.6);
   backdrop-filter: blur(4px);
   align-items: center; justify-content: center;
+  -webkit-app-region: no-drag;
 }
 .modal-overlay.open {
-  display: flex !important;
+  display: flex;
 }
 .modal {
   background: #1a1a28; border: 1px solid rgba(255,255,255,0.1);
   border-radius: 16px; width: 420px;
   box-shadow: 0 24px 60px rgba(0,0,0,0.5);
   overflow: hidden;
+  -webkit-app-region: no-drag;
 }
 .modal-header {
   display: flex; align-items: center; justify-content: space-between;
