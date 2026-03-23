@@ -1,8 +1,81 @@
 'use strict';
 
-const { app, BrowserWindow, ipcMain, systemPreferences, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, systemPreferences, Notification } = require('electron');
 const { exec } = require('child_process');
+const { request } = require('https');
 const path = require('path');
+const fs   = require('fs');
+
+// ── 텔레그램 설정 파일 ────────────────────────────────
+const CONFIG_PATH = path.join(app.getPath('userData'), 'telegram-config.json');
+
+function loadConfig() {
+  try { return JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8')); }
+  catch { return { token: '', chatId: '' }; }
+}
+
+function saveConfig(cfg) {
+  fs.writeFileSync(CONFIG_PATH, JSON.stringify(cfg, null, 2));
+}
+
+// ── 텔레그램 메시지 전송 ──────────────────────────────
+function sendTelegram(token, chatId, text) {
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify({ chat_id: chatId, text, parse_mode: 'Markdown' });
+    const req = request({
+      hostname: 'api.telegram.org',
+      path: `/bot${token}/sendMessage`,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
+    }, res => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        const json = JSON.parse(data);
+        json.ok ? resolve(json) : reject(new Error(json.description));
+      });
+    });
+    req.on('error', reject);
+    req.write(body);
+    req.end();
+  });
+}
+
+// ── 요약 메시지 생성 ──────────────────────────────────
+function buildSummaryText(data) {
+  const { appTimeMap, totalActiveMs, topApp, switchCount, keywords } = data;
+
+  const fmt = ms => {
+    const m = Math.floor(ms / 60000), h = Math.floor(m / 60);
+    return h > 0 ? `${h}시간 ${m % 60}분` : `${m}분`;
+  };
+
+  const bar = pct => '█'.repeat(Math.round(pct / 10)) + '░'.repeat(10 - Math.round(pct / 10));
+
+  const today = new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' });
+
+  const sorted = Object.entries(appTimeMap).sort((a,b) => b[1]-a[1]).slice(0, 5);
+  const max = sorted[0]?.[1] || 1;
+  const appLines = sorted.map(([name, ms]) =>
+    `• ${name.padEnd(12)} ${fmt(ms)} ${bar(ms/max*100)}`
+  ).join('\n');
+
+  const kwLine = keywords.slice(0, 8).map(([w]) => w).join(' · ') || '(없음)';
+
+  return [
+    `📊 *오늘의 활동 리포트* (${today})`,
+    ``,
+    `⏱ 총 활성 시간: *${fmt(totalActiveMs)}*`,
+    `🏆 가장 많이 쓴 앱: *${topApp}*`,
+    `🔀 앱 전환 횟수: *${switchCount}회*`,
+    ``,
+    `📱 *앱별 사용 시간*`,
+    appLines,
+    ``,
+    `🔍 *오늘의 관심 키워드*`,
+    kwLine,
+  ].join('\n');
+}
 
 // ── 활동 추적 데이터 ──────────────────────────────────
 const activityLog = [];   // [{ time, app, title }]
@@ -112,6 +185,19 @@ ipcMain.handle('get-activity-data', () => {
     switchCount: recentLog.length,
     recentLog,
   };
+});
+
+// 텔레그램 설정 저장/불러오기
+ipcMain.handle('load-telegram-config', () => loadConfig());
+ipcMain.handle('save-telegram-config', (_, cfg) => { saveConfig(cfg); return true; });
+
+// 텔레그램 전송
+ipcMain.handle('send-telegram', async (_, data) => {
+  const cfg = loadConfig();
+  if (!cfg.token || !cfg.chatId) throw new Error('토큰과 채팅 ID를 먼저 설정해주세요.');
+  const text = buildSummaryText(data);
+  await sendTelegram(cfg.token, cfg.chatId, text);
+  return true;
 });
 
 ipcMain.handle('check-permission', () => {

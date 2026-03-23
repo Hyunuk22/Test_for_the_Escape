@@ -46,6 +46,7 @@ async function analyze() {
 
   try {
     const data = await window.api.getActivityData();
+    lastAnalyzedData = data;
     render(data);
     showView('view-dashboard');
   } catch (e) {
@@ -238,16 +239,83 @@ function renderKeywords(keywords) {
 // ── 권한 확인 ─────────────────────────────────────────
 async function checkPermission() {
   const granted = await window.api.checkPermission();
-  if (!granted) {
-    document.getElementById('permission-box').style.display = 'flex';
+  if (!granted) document.getElementById('permission-box').style.display = 'flex';
+}
+
+// ── 텔레그램 설정 모달 ────────────────────────────────
+let lastAnalyzedData = null;
+
+async function openSettings() {
+  const cfg = await window.api.loadTelegramConfig();
+  document.getElementById('tg-token').value  = cfg.token  || '';
+  document.getElementById('tg-chatid').value = cfg.chatId || '';
+  setStatus('', '');
+  document.getElementById('tg-modal').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('tg-modal').style.display = 'none';
+}
+
+function setStatus(msg, type) {
+  const el = document.getElementById('modal-status');
+  el.textContent = msg;
+  el.className = 'modal-status' + (type ? ` ${type}` : '');
+}
+
+async function saveSettings() {
+  const token  = document.getElementById('tg-token').value.trim();
+  const chatId = document.getElementById('tg-chatid').value.trim();
+  if (!token || !chatId) { setStatus('토큰과 채팅 ID를 입력해주세요.', 'err'); return; }
+  await window.api.saveTelegramConfig({ token, chatId });
+  setStatus('✓ 저장되었습니다.', 'ok');
+  setTimeout(closeModal, 1000);
+}
+
+async function testSend() {
+  const token  = document.getElementById('tg-token').value.trim();
+  const chatId = document.getElementById('tg-chatid').value.trim();
+  if (!token || !chatId) { setStatus('토큰과 채팅 ID를 먼저 입력해주세요.', 'err'); return; }
+  await window.api.saveTelegramConfig({ token, chatId });
+  setStatus('전송 중...', '');
+  try {
+    await window.api.sendTelegram(lastAnalyzedData || { appTimeMap:{}, totalActiveMs:0, topApp:'-', switchCount:0, keywords:[] });
+    setStatus('✓ 전송 성공!', 'ok');
+  } catch(e) {
+    setStatus('✗ ' + e.message, 'err');
+  }
+}
+
+async function sendToTelegram() {
+  if (!lastAnalyzedData) { alert('먼저 분석을 실행해주세요.'); return; }
+  const btn = document.getElementById('btn-tg-send');
+  btn.disabled = true;
+  btn.innerHTML = '<span>⏳</span> 전송 중...';
+  try {
+    await window.api.sendTelegram(lastAnalyzedData);
+    btn.innerHTML = '<span>✓</span> 전송 완료!';
+    setTimeout(() => { btn.disabled = false; btn.innerHTML = '<span class="btn-tg-icon">✈</span> 텔레그램 전송'; }, 2500);
+  } catch(e) {
+    btn.innerHTML = '<span>✗</span> 실패';
+    setTimeout(() => { btn.disabled = false; btn.innerHTML = '<span class="btn-tg-icon">✈</span> 텔레그램 전송'; }, 2500);
+    alert('전송 실패: ' + e.message);
   }
 }
 
 // ── 이벤트 바인딩 ──────────────────────────────────────
 document.getElementById('btn-start').addEventListener('click', analyze);
 document.getElementById('btn-refresh').addEventListener('click', analyze);
-document.getElementById('btn-perm').addEventListener('click', () => {
-  window.api.requestPermission();
+document.getElementById('btn-perm').addEventListener('click', () => window.api.requestPermission());
+
+document.getElementById('btn-settings').addEventListener('click', openSettings);
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.getElementById('btn-save').addEventListener('click', saveSettings);
+document.getElementById('btn-test').addEventListener('click', testSend);
+document.getElementById('btn-tg-send').addEventListener('click', sendToTelegram);
+
+// 모달 바깥 클릭 시 닫기
+document.getElementById('tg-modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
 });
 
 // 시작 시 권한 확인

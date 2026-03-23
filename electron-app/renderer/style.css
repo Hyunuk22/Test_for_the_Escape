@@ -130,13 +130,102 @@ html, body {
 .dash-logo { font-size: 1.4rem; color: var(--accent2); }
 .dash-date { font-size: 0.7rem; color: var(--accent2); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
 .dash-title { font-size: 1.05rem; font-weight: 800; }
-.btn-refresh {
-  background: var(--card2); border: 1px solid var(--border);
-  color: var(--muted); padding: 0.45rem 1rem; border-radius: 8px;
-  font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
+.header-actions {
+  display: flex; align-items: center; gap: 0.5rem;
   -webkit-app-region: no-drag;
 }
+.btn-refresh {
+  background: var(--card2); border: 1px solid var(--border);
+  color: var(--muted); padding: 0.45rem 0.7rem; border-radius: 8px;
+  font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
+}
 .btn-refresh:hover { color: var(--text); border-color: var(--accent); }
+
+.btn-settings {
+  background: var(--card2); border: 1px solid var(--border);
+  color: var(--muted); width: 32px; height: 32px; border-radius: 8px;
+  font-size: 0.95rem; cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.btn-settings:hover { color: var(--text); border-color: var(--accent); }
+
+.btn-tg {
+  background: linear-gradient(135deg, #2b5278, #3a86c8);
+  color: white; border: none;
+  padding: 0.45rem 1rem; border-radius: 8px;
+  font-size: 0.8rem; font-weight: 700; cursor: pointer;
+  transition: all 0.2s; display: flex; align-items: center; gap: 0.35rem;
+  box-shadow: 0 2px 12px rgba(58,134,200,0.3);
+}
+.btn-tg:hover { transform: translateY(-1px); box-shadow: 0 4px 18px rgba(58,134,200,0.45); }
+.btn-tg:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn-tg-icon { font-size: 0.9rem; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  display: flex !important;
+  align-items: center; justify-content: center;
+}
+.modal {
+  background: #1a1a28; border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px; width: 420px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  overflow: hidden;
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 1.4rem;
+  border-bottom: 1px solid var(--border);
+}
+.modal-title { font-weight: 800; font-size: 0.95rem; }
+.modal-close {
+  background: none; border: none; color: var(--muted);
+  font-size: 1rem; cursor: pointer; transition: color 0.2s;
+}
+.modal-close:hover { color: var(--text); }
+.modal-body { padding: 1.4rem; }
+
+.field { margin-bottom: 1rem; }
+.field label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 0.4rem; font-weight: 600; letter-spacing: 0.04em; }
+.field input {
+  width: 100%; background: var(--bg); border: 1px solid var(--border);
+  color: var(--text); padding: 0.6rem 0.8rem; border-radius: 8px;
+  font-size: 0.82rem; font-family: 'Consolas', monospace;
+  outline: none; transition: border-color 0.2s;
+}
+.field input:focus { border-color: var(--accent); }
+
+.modal-hint {
+  background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.8rem; margin-bottom: 1rem;
+  font-size: 0.75rem; color: var(--muted); line-height: 1.8;
+}
+.modal-hint code {
+  display: block; margin-top: 0.3rem;
+  color: var(--accent2); font-size: 0.7rem; word-break: break-all;
+}
+
+.modal-footer { display: flex; gap: 0.6rem; justify-content: flex-end; margin-bottom: 0.7rem; }
+.btn-test {
+  background: rgba(58,134,200,0.12); border: 1px solid rgba(58,134,200,0.3);
+  color: #74b9e8; padding: 0.5rem 1.1rem; border-radius: 8px;
+  font-size: 0.82rem; cursor: pointer; transition: all 0.2s;
+}
+.btn-test:hover { background: rgba(58,134,200,0.2); }
+.btn-save {
+  background: linear-gradient(135deg, #6d5bd0, #a78bfa);
+  color: white; border: none; padding: 0.5rem 1.4rem;
+  border-radius: 8px; font-size: 0.82rem; font-weight: 700; cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-save:hover { opacity: 0.9; }
+
+.modal-status { font-size: 0.78rem; text-align: center; min-height: 1.2rem; }
+.modal-status.ok  { color: var(--green); }
+.modal-status.err { color: #f87171; }
 
 /* STATS */
 .stat-row {
