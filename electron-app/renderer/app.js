@@ -249,11 +249,11 @@ async function openSettings() {
   const cfg = await window.api.loadEmailConfig();
   document.getElementById('email-input').value = cfg.email || '';
   setStatus('', '');
-  document.getElementById('tg-modal').style.display = 'flex';
+  document.getElementById('tg-modal').classList.add('open');
 }
 
 function closeModal() {
-  document.getElementById('tg-modal').style.display = 'none';
+  document.getElementById('tg-modal').classList.remove('open');
 }
 
 function setStatus(msg, type) {
