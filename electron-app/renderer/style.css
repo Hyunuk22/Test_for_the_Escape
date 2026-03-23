@@ -72,6 +72,17 @@ html, body {
   font-size: 0.78rem; cursor: pointer; white-space: nowrap;
 }
 
+.splash-email-wrap { margin-bottom: 1rem; }
+.splash-email-wrap input {
+  width: 100%; background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(167,139,250,0.3);
+  color: var(--text); padding: 0.7rem 1rem;
+  border-radius: 10px; font-size: 0.88rem;
+  outline: none; transition: border-color 0.2s; text-align: center;
+}
+.splash-email-wrap input:focus { border-color: var(--accent2); }
+.splash-email-wrap input::placeholder { color: var(--muted); }
+
 .btn-main {
   background: linear-gradient(135deg, #6d5bd0, #a78bfa);
   color: white; border: none;
