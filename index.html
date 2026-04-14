@@ -983,12 +983,17 @@
   fadeEls.forEach(el => observer.observe(el));
 
   // ── Waitlist Submit ──
-  function submitWaitlist() {
-    const email = document.getElementById('email').value.trim();
-    const name = document.getElementById('fname').value.trim();
-    const school = document.getElementById('school').value.trim();
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8s8JYGIELf0oWaDtRUgqu3I4GGa2729_MKJ_nwrWONaW9U_DmrLrK-urtNgCp-dY/exec';
 
-    if (!email || !name || !school) {
+  function submitWaitlist() {
+    const name   = document.getElementById('fname').value.trim();
+    const degree = document.getElementById('degree').value;
+    const email  = document.getElementById('email').value.trim();
+    const school = document.getElementById('school').value.trim();
+    const major  = document.getElementById('major').value.trim();
+    const career = document.getElementById('career').value;
+
+    if (!name || !email || !school) {
       alert('이름, 이메일, 학교는 필수 입력 항목입니다.');
       return;
     }
@@ -997,14 +1002,25 @@
       return;
     }
 
-    // 실제 배포 시 서버/폼 연동으로 교체
-    document.getElementById('waitlistForm').style.display = 'none';
-    const successEl = document.getElementById('successMsg');
-    successEl.style.display = 'block';
+    const btn = document.querySelector('.form-submit');
+    btn.textContent = '제출 중...';
+    btn.disabled = true;
 
-    // 등록 수 카운터 (로컬 데모용)
-    const count = parseInt(localStorage.getItem('ml_count') || '0') + 1;
-    localStorage.setItem('ml_count', count);
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, degree, email, school, major, career })
+    })
+    .then(() => {
+      document.getElementById('waitlistForm').style.display = 'none';
+      document.getElementById('successMsg').style.display = 'block';
+    })
+    .catch(() => {
+      alert('제출 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      btn.textContent = '사전 등록하기 → Pro 1개월 무료';
+      btn.disabled = false;
+    });
   }
 
   // ── Smooth anchor ──
