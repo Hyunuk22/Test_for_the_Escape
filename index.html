@@ -3,219 +3,1027 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>오늘의 활동 분석기 — Chrome 확장 프로그램</title>
+  <title>MEET LAB — 대학원생을 위한 진지한 연결</title>
   <style>
     :root {
-      --bg: #0c0c14;
-      --surface: #13131f;
-      --card: #1a1a2a;
-      --border: rgba(255,255,255,0.08);
-      --accent: #a78bfa;
-      --accent2: #7c6fcd;
+      --bg: #07080f;
+      --surface: #0f1018;
+      --card: #161824;
+      --border: rgba(255,255,255,0.07);
+      --accent: #6ee7b7;
+      --accent2: #34d399;
+      --accent3: #a78bfa;
       --text: #e2e4f0;
       --muted: #6b7280;
+      --phone-bg: #1a1d2e;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+      font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--text);
       line-height: 1.6;
+      overflow-x: hidden;
     }
 
-    /* NAV */
+    /* ── NAV ── */
     nav {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(12,12,20,0.9);
-      backdrop-filter: blur(14px);
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(7,8,15,0.85);
+      backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
       padding: 0 2rem;
       height: 56px;
       display: flex; align-items: center; justify-content: space-between;
     }
-    .nav-logo { font-weight: 800; font-size: 1rem; color: var(--accent); }
-    .nav-badge {
-      font-size: 0.7rem; background: rgba(167,139,250,0.15);
-      border: 1px solid rgba(167,139,250,0.3); color: var(--accent);
-      padding: 0.2rem 0.7rem; border-radius: 999px;
-    }
-
-    /* HERO */
-    .hero {
-      text-align: center;
-      padding: 7rem 2rem 5rem;
-      background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(124,111,205,0.18) 0%, transparent 65%);
-    }
-    .hero-icon {
-      font-size: 3rem; margin-bottom: 1.2rem;
-      filter: drop-shadow(0 0 20px rgba(167,139,250,0.5));
-      animation: float 3s ease-in-out infinite;
-    }
-    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-
-    .hero h1 {
-      font-size: clamp(2rem, 5vw, 3.2rem);
-      font-weight: 900; line-height: 1.2;
-      margin-bottom: 1rem;
-    }
-    .hero h1 span { color: var(--accent); }
-    .hero p { color: var(--muted); max-width: 480px; margin: 0 auto 2.5rem; font-size: 1rem; }
-    .hero-btn {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      background: linear-gradient(135deg, #6d5bd0, #a78bfa);
-      color: white; padding: 0.8rem 2.2rem;
-      border-radius: 999px; text-decoration: none;
-      font-weight: 700; font-size: 0.95rem;
-      box-shadow: 0 4px 24px rgba(109,91,208,0.4);
+    .nav-logo { font-weight: 900; font-size: 1.1rem; letter-spacing: 0.08em; color: var(--accent); }
+    .nav-links { display: flex; gap: 1.8rem; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--accent); color: #07080f;
+      padding: 0.45rem 1.2rem; border-radius: 999px;
+      font-size: 0.82rem; font-weight: 800; text-decoration: none;
       transition: all 0.2s;
     }
-    .hero-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(109,91,208,0.55); }
+    .nav-cta:hover { background: var(--accent2); transform: translateY(-1px); }
 
-    /* PREVIEW */
-    .preview-wrap {
-      max-width: 900px; margin: 3rem auto; padding: 0 2rem;
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem;
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(110,231,183,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(167,139,250,0.08) 0%, transparent 50%);
+      position: relative;
     }
-    .preview-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 14px; padding: 1.4rem; text-align: left;
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(110,231,183,0.1); border: 1px solid rgba(110,231,183,0.25);
+      color: var(--accent); padding: 0.35rem 1rem; border-radius: 999px;
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em;
+      margin-bottom: 2rem;
     }
-    .preview-card .icon { font-size: 1.6rem; margin-bottom: 0.7rem; }
-    .preview-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
-    .preview-card p { font-size: 0.82rem; color: var(--muted); }
+    .hero-badge::before { content: '●'; font-size: 0.5rem; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    /* STEPS */
-    .steps-wrap { max-width: 640px; margin: 0 auto; padding: 4rem 2rem; }
-    .steps-title {
-      text-align: center; font-size: 1.5rem; font-weight: 800;
-      margin-bottom: 0.5rem;
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      font-weight: 900; line-height: 1.15;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.02em;
     }
-    .steps-sub { text-align: center; color: var(--muted); font-size: 0.88rem; margin-bottom: 2.5rem; }
+    .hero h1 .em { color: var(--accent); }
+    .hero h1 .em2 { color: var(--accent3); }
+    .hero-sub {
+      color: var(--muted); max-width: 520px; margin: 0 auto 2.8rem;
+      font-size: 1.05rem; line-height: 1.8;
+    }
+    .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--accent); color: #07080f;
+      padding: 0.85rem 2.4rem; border-radius: 999px;
+      font-weight: 800; font-size: 0.95rem; text-decoration: none;
+      box-shadow: 0 4px 28px rgba(110,231,183,0.35);
+      transition: all 0.2s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(110,231,183,0.5); }
+    .btn-secondary {
+      border: 1px solid var(--border); color: var(--text);
+      padding: 0.85rem 2rem; border-radius: 999px;
+      font-weight: 600; font-size: 0.95rem; text-decoration: none;
+      transition: all 0.2s; background: rgba(255,255,255,0.03);
+    }
+    .btn-secondary:hover { border-color: rgba(255,255,255,0.18); background: rgba(255,255,255,0.06); }
 
-    .step {
-      display: flex; gap: 1.2rem;
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 14px; padding: 1.2rem 1.4rem;
+    .hero-stats {
+      margin-top: 4rem; display: flex; gap: 3rem; justify-content: center; flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat-num { font-size: 1.8rem; font-weight: 900; color: var(--accent); }
+    .stat-label { font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; }
+
+    /* ── SECTION WRAPPER ── */
+    section {
+      padding: 6rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section-tag {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      color: var(--accent); font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .section-tag::before { content: ''; width: 18px; height: 1px; background: var(--accent); }
+    .section-title {
+      font-size: clamp(1.7rem, 4vw, 2.5rem);
+      font-weight: 900; line-height: 1.2;
+      margin-bottom: 0.8rem; letter-spacing: -0.02em;
+    }
+    .section-sub { color: var(--muted); font-size: 1rem; line-height: 1.8; max-width: 500px; }
+
+    /* ── FEATURE ROWS (Phone mockup + text) ── */
+    .feature-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 4rem; align-items: center;
+      padding: 5rem 2rem;
+      max-width: 1100px; margin: 0 auto;
+    }
+    .feature-row.reverse { direction: rtl; }
+    .feature-row.reverse > * { direction: ltr; }
+
+    .feature-text { }
+    .feature-text ul {
+      list-style: none; margin-top: 1.8rem; display: flex; flex-direction: column; gap: 0.8rem;
+    }
+    .feature-text ul li {
+      display: flex; align-items: flex-start; gap: 0.8rem;
+      font-size: 0.92rem; color: var(--muted);
+    }
+    .feature-text ul li::before {
+      content: '✓'; color: var(--accent); font-weight: 900;
+      flex-shrink: 0; margin-top: 2px;
+    }
+
+    /* ── PHONE MOCKUP ── */
+    .phone-wrap {
+      display: flex; justify-content: center; align-items: center;
+      position: relative;
+    }
+    .phone {
+      width: 260px;
+      background: #0d0f1a;
+      border-radius: 36px;
+      border: 2px solid rgba(255,255,255,0.1);
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.5),
+        0 30px 80px rgba(0,0,0,0.6),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+      padding: 20px 12px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .phone::before {
+      content: '';
+      position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+      width: 60px; height: 5px;
+      background: rgba(255,255,255,0.15); border-radius: 3px;
+    }
+    .phone-screen {
+      background: var(--phone-bg);
+      border-radius: 22px;
+      overflow: hidden;
+      min-height: 480px;
+    }
+
+    /* ── SCREEN: VERIFY ── */
+    .screen-verify {
+      padding: 1.5rem 1rem;
+    }
+    .screen-verify .s-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .s-logo { font-size: 0.75rem; font-weight: 900; color: var(--accent); letter-spacing: 0.05em; }
+    .s-step { font-size: 0.65rem; color: var(--muted); }
+    .s-title { font-size: 1rem; font-weight: 800; margin-bottom: 0.3rem; }
+    .s-sub { font-size: 0.68rem; color: var(--muted); margin-bottom: 1.2rem; }
+    .upload-box {
+      border: 1.5px dashed rgba(110,231,183,0.3);
+      border-radius: 14px; padding: 1.2rem 0.8rem;
+      text-align: center; background: rgba(110,231,183,0.04);
       margin-bottom: 0.8rem;
-      align-items: flex-start;
     }
-    .step-num {
-      width: 32px; height: 32px; border-radius: 50%;
-      background: linear-gradient(135deg, #6d5bd0, #a78bfa);
-      color: white; font-weight: 800; font-size: 0.85rem;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; margin-top: 1px;
+    .upload-icon { font-size: 1.6rem; margin-bottom: 0.4rem; }
+    .upload-label { font-size: 0.68rem; color: var(--muted); }
+    .upload-sub { font-size: 0.6rem; color: rgba(110,231,183,0.6); margin-top: 0.2rem; }
+    .verify-chips { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .chip {
+      font-size: 0.6rem; padding: 0.25rem 0.6rem; border-radius: 999px;
+      background: rgba(110,231,183,0.1); border: 1px solid rgba(110,231,183,0.2);
+      color: var(--accent);
     }
-    .step h4 { font-size: 0.92rem; font-weight: 700; margin-bottom: 0.3rem; }
-    .step p { font-size: 0.8rem; color: var(--muted); }
-    .step code {
-      display: inline-block; margin-top: 0.4rem;
-      background: rgba(255,255,255,0.06); border: 1px solid var(--border);
-      border-radius: 6px; padding: 0.2rem 0.6rem;
-      font-family: 'Consolas', monospace; font-size: 0.78rem; color: var(--accent);
+    .s-btn {
+      width: 100%; padding: 0.65rem; border-radius: 10px;
+      background: var(--accent); color: #07080f;
+      font-weight: 800; font-size: 0.75rem; text-align: center;
+      cursor: pointer;
+    }
+    .s-info {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-size: 0.6rem; color: var(--muted); margin-top: 0.8rem;
     }
 
-    /* DIVIDER */
+    /* ── SCREEN: PROFILE ── */
+    .screen-profile { padding: 1.2rem 1rem; }
+    .profile-avatar {
+      width: 54px; height: 54px; border-radius: 50%;
+      background: linear-gradient(135deg, #6ee7b7, #a78bfa);
+      margin: 0 auto 0.6rem; display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+    }
+    .profile-name { text-align: center; font-size: 0.85rem; font-weight: 800; margin-bottom: 0.2rem; }
+    .profile-school { text-align: center; font-size: 0.62rem; color: var(--muted); margin-bottom: 1rem; }
+    .profile-badges { display: flex; gap: 0.35rem; justify-content: center; margin-bottom: 1.2rem; flex-wrap: wrap; }
+    .profile-badge {
+      font-size: 0.58rem; padding: 0.2rem 0.55rem; border-radius: 999px;
+      background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.2);
+      color: var(--accent3);
+    }
+    .profile-section { margin-bottom: 1rem; }
+    .profile-section-title {
+      font-size: 0.6rem; font-weight: 700; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem;
+    }
+    .profile-row {
+      display: flex; justify-content: space-between;
+      font-size: 0.65rem; padding: 0.35rem 0;
+      border-bottom: 1px solid var(--border); color: var(--text);
+    }
+    .profile-row span:first-child { color: var(--muted); }
+    .keywords-wrap { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .keyword-tag {
+      font-size: 0.58rem; padding: 0.2rem 0.55rem; border-radius: 6px;
+      background: rgba(110,231,183,0.08); border: 1px solid rgba(110,231,183,0.15);
+      color: var(--accent);
+    }
+
+    /* ── SCREEN: MATCH ── */
+    .screen-match { padding: 1.2rem 1rem; }
+    .match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .match-title-s { font-size: 0.72rem; font-weight: 800; }
+    .match-filter { font-size: 0.58rem; color: var(--accent); }
+    .match-card {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 14px; padding: 0.9rem; margin-bottom: 0.7rem;
+    }
+    .match-card-top { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.7rem; }
+    .match-avatar-blur {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; filter: blur(4px);
+    }
+    .match-info { flex: 1; }
+    .match-school-s { font-size: 0.62rem; color: var(--muted); }
+    .match-dept { font-size: 0.68rem; font-weight: 700; }
+    .match-pct {
+      font-size: 0.62rem; font-weight: 800; color: var(--accent);
+      background: rgba(110,231,183,0.1); padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+    }
+    .match-keywords-s { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.7rem; }
+    .match-kw {
+      font-size: 0.58rem; padding: 0.18rem 0.5rem; border-radius: 5px;
+      background: rgba(110,231,183,0.07); border: 1px solid rgba(110,231,183,0.12);
+      color: var(--accent);
+    }
+    .match-actions { display: flex; gap: 0.5rem; }
+    .match-btn {
+      flex: 1; text-align: center; padding: 0.4rem;
+      border-radius: 8px; font-size: 0.62rem; font-weight: 700;
+    }
+    .match-btn.pass { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--muted); }
+    .match-btn.like { background: var(--accent); color: #07080f; }
+    .lock-notice {
+      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+      font-size: 0.6rem; color: var(--muted); margin-top: 0.5rem;
+    }
+
+    /* ── SCREEN: CHAT ── */
+    .screen-chat { display: flex; flex-direction: column; height: 480px; }
+    .chat-header {
+      padding: 0.9rem 1rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.7rem;
+    }
+    .chat-av {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, #6ee7b7, #a78bfa);
+      display: flex; align-items: center; justify-content: center; font-size: 0.9rem;
+    }
+    .chat-av.blur { filter: blur(3px); background: rgba(255,255,255,0.05); }
+    .chat-name-s { font-size: 0.72rem; font-weight: 700; }
+    .chat-status { font-size: 0.6rem; color: var(--accent); }
+    .chat-messages { flex: 1; padding: 0.8rem 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.6rem; }
+    .msg {
+      max-width: 80%; font-size: 0.66rem; line-height: 1.5;
+      padding: 0.5rem 0.7rem; border-radius: 12px;
+    }
+    .msg.them { background: rgba(255,255,255,0.06); align-self: flex-start; border-bottom-left-radius: 4px; }
+    .msg.me { background: rgba(110,231,183,0.15); border: 1px solid rgba(110,231,183,0.2); color: var(--accent); align-self: flex-end; border-bottom-right-radius: 4px; }
+    .msg-time { font-size: 0.55rem; color: var(--muted); margin-top: 0.2rem; }
+    .meeting-card-msg {
+      background: rgba(167,139,250,0.08); border: 1px solid rgba(167,139,250,0.2);
+      border-radius: 10px; padding: 0.6rem 0.8rem; margin: 0.4rem 0;
+      font-size: 0.62rem;
+    }
+    .meeting-card-title { font-weight: 800; color: var(--accent3); margin-bottom: 0.3rem; font-size: 0.65rem; }
+    .meeting-time { color: var(--muted); }
+    .chat-input-wrap {
+      padding: 0.7rem 1rem; border-top: 1px solid var(--border);
+      display: flex; gap: 0.5rem; align-items: center;
+    }
+    .chat-input {
+      flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      border-radius: 20px; padding: 0.4rem 0.8rem; font-size: 0.62rem; color: var(--muted);
+    }
+    .chat-send {
+      width: 28px; height: 28px; border-radius: 50%; background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; color: #07080f; font-weight: 900;
+    }
+
+    /* ── SCREEN: VIDEO ── */
+    .screen-video { position: relative; height: 480px; background: #0a0c14; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+    .video-main { width: 100%; height: 300px; background: linear-gradient(160deg, #0f1a2e 0%, #1a1030 100%); display: flex; align-items: center; justify-content: center; flex-direction: column; }
+    .video-avatar { font-size: 3rem; margin-bottom: 0.5rem; opacity: 0.5; }
+    .video-label { font-size: 0.65rem; color: var(--muted); }
+    .video-self { position: absolute; bottom: 80px; right: 12px; width: 70px; height: 95px; background: rgba(255,255,255,0.06); border-radius: 10px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .video-controls { position: absolute; bottom: 10px; left: 0; right: 0; display: flex; justify-content: center; gap: 1rem; padding: 0.7rem; }
+    .vc-btn {
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    }
+    .vc-btn.mic { background: rgba(255,255,255,0.08); }
+    .vc-btn.cam { background: rgba(255,255,255,0.08); }
+    .vc-btn.end { background: #ef4444; }
+    .video-timer { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); font-size: 0.65rem; color: var(--muted); background: rgba(0,0,0,0.4); padding: 0.2rem 0.7rem; border-radius: 999px; }
+
+    /* ── DIVIDER ── */
     .divider {
       height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(167,139,250,0.2), transparent);
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
       margin: 0 2rem;
     }
 
+    /* ── HOW IT WORKS ── */
+    .how-section {
+      padding: 6rem 2rem; text-align: center; max-width: 900px; margin: 0 auto;
+    }
+    .steps-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.5rem; margin-top: 3rem;
+    }
+    .step-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 1.6rem 1.2rem; text-align: center;
+      position: relative; transition: border-color 0.2s;
+    }
+    .step-card:hover { border-color: rgba(110,231,183,0.25); }
+    .step-num-badge {
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--accent); color: #07080f;
+      font-size: 0.72rem; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-icon { font-size: 2rem; margin-bottom: 0.8rem; }
+    .step-name { font-size: 0.88rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .step-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── DIFF SECTION ── */
+    .diff-section {
+      padding: 6rem 2rem; max-width: 1000px; margin: 0 auto;
+    }
+    .diff-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-top: 3rem;
+    }
+    .diff-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 1.6rem;
+      transition: all 0.2s;
+    }
+    .diff-card:hover { border-color: rgba(110,231,183,0.2); transform: translateY(-2px); }
+    .diff-icon { font-size: 1.8rem; margin-bottom: 0.8rem; }
+    .diff-title { font-size: 0.95rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .diff-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.7; }
+
+    /* ── PRICING ── */
+    .pricing-section { padding: 6rem 2rem; max-width: 800px; margin: 0 auto; text-align: center; }
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 3rem; }
+    .pricing-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 1.8rem 1.2rem;
+      transition: all 0.2s;
+    }
+    .pricing-card.featured {
+      border-color: rgba(110,231,183,0.4);
+      background: rgba(110,231,183,0.04);
+    }
+    .plan-label { font-size: 0.72rem; font-weight: 700; color: var(--muted); margin-bottom: 0.5rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    .plan-label.accent { color: var(--accent); }
+    .plan-price { font-size: 1.6rem; font-weight: 900; margin-bottom: 0.3rem; }
+    .plan-unit { font-size: 0.72rem; color: var(--muted); margin-bottom: 1rem; }
+    .plan-features { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .plan-features li { font-size: 0.78rem; color: var(--muted); display: flex; align-items: center; gap: 0.5rem; justify-content: center; }
+    .plan-features li::before { content: '✓'; color: var(--accent); font-weight: 900; }
+    .plan-btn {
+      display: block; width: 100%; padding: 0.65rem;
+      border-radius: 10px; font-size: 0.82rem; font-weight: 800;
+      text-decoration: none; cursor: pointer; border: none;
+    }
+    .plan-btn.outline { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); }
+    .plan-btn.filled { background: var(--accent); color: #07080f; }
+
+    /* ── WAITLIST ── */
+    .waitlist-section {
+      padding: 7rem 2rem; text-align: center;
+      background: radial-gradient(ellipse 80% 60% at 50% 100%, rgba(110,231,183,0.08) 0%, transparent 60%);
+    }
+    .waitlist-inner { max-width: 540px; margin: 0 auto; }
+    .waitlist-section .section-title { margin-bottom: 1rem; }
+    .waitlist-section .section-sub { margin: 0 auto 2.5rem; }
+    .form-grid { display: flex; flex-direction: column; gap: 0.8rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+    .form-input {
+      width: 100%; padding: 0.85rem 1.1rem;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; color: var(--text); font-size: 0.9rem;
+      outline: none; transition: border-color 0.2s;
+    }
+    .form-input:focus { border-color: rgba(110,231,183,0.4); }
+    .form-input::placeholder { color: var(--muted); }
+    .form-select {
+      width: 100%; padding: 0.85rem 1.1rem;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; color: var(--text); font-size: 0.9rem;
+      outline: none; appearance: none; cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .form-select:focus { border-color: rgba(110,231,183,0.4); }
+    .form-submit {
+      width: 100%; padding: 1rem;
+      background: var(--accent); color: #07080f;
+      border: none; border-radius: 12px;
+      font-size: 1rem; font-weight: 900; cursor: pointer;
+      box-shadow: 0 4px 28px rgba(110,231,183,0.3);
+      transition: all 0.2s; margin-top: 0.5rem;
+    }
+    .form-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(110,231,183,0.45); }
+    .form-submit:active { transform: translateY(0); }
+    .form-note { font-size: 0.75rem; color: var(--muted); margin-top: 1rem; }
+
+    /* ── SUCCESS STATE ── */
+    .success-msg {
+      display: none; text-align: center; padding: 2rem;
+      background: rgba(110,231,183,0.08); border: 1px solid rgba(110,231,183,0.25);
+      border-radius: 16px;
+    }
+    .success-msg .success-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+    .success-msg h3 { font-size: 1.2rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .success-msg p { font-size: 0.88rem; color: var(--muted); }
+
+    /* ── FOOTER ── */
     footer {
-      text-align: center; padding: 2.5rem;
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 2rem; text-align: center;
       color: var(--muted); font-size: 0.8rem;
+    }
+    footer .f-logo { font-weight: 900; color: var(--accent); font-size: 1rem; margin-bottom: 0.5rem; letter-spacing: 0.08em; }
+
+    /* ── GLOW DECORATIONS ── */
+    .glow-dot {
+      position: absolute; border-radius: 50%; pointer-events: none;
+    }
+
+    /* ── SCROLL ANIMATION ── */
+    .fade-in { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .feature-row { grid-template-columns: 1fr; gap: 2.5rem; }
+      .feature-row.reverse { direction: ltr; }
+      .diff-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      .hero-stats { gap: 2rem; }
     }
 
     ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.3); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: rgba(110,231,183,0.2); border-radius: 3px; }
   </style>
 </head>
 <body>
 
+<!-- ── NAV ── -->
 <nav>
-  <div class="nav-logo">◈ 오늘의 활동 분석기</div>
-  <span class="nav-badge">Chrome Extension</span>
+  <div class="nav-logo">MEET LAB</div>
+  <ul class="nav-links">
+    <li><a href="#how">작동 방식</a></li>
+    <li><a href="#features">기능</a></li>
+    <li><a href="#pricing">요금제</a></li>
+    <li><a href="#waitlist">사전 등록</a></li>
+  </ul>
+  <a href="#waitlist" class="nav-cta">사전 등록 →</a>
 </nav>
 
+<!-- ── HERO ── -->
 <div class="hero">
-  <div class="hero-icon">◈</div>
-  <h1>오늘 하루<br/><span>내가 뭘 했는지</span><br/>한눈에 보기</h1>
-  <p>브라우저 방문 기록을 분석해 사이트별 활동, 시간대별 패턴, 오늘의 관심 키워드를 시각화해드립니다.</p>
-  <a href="https://github.com/Hyunuk22/Test_for_the_Escape" class="hero-btn">
-    ↓ GitHub에서 다운로드
-  </a>
+  <div class="hero-badge">대학원생 전용 매칭 플랫폼</div>
+  <h1>
+    연구실 밖에서도<br/>
+    <span class="em">연구하듯</span> 만나세요
+  </h1>
+  <p class="hero-sub">
+    검증된 대학원생·연구자들과 학업 성향, 미래 계획,
+    삶의 방식을 기반으로 진지하게 연결됩니다.<br/>
+    소개팅이 아닌, <strong>연구 미팅</strong>입니다.
+  </p>
+  <div class="hero-btns">
+    <a href="#waitlist" class="btn-primary">사전 등록하기</a>
+    <a href="#how" class="btn-secondary">어떻게 작동하나요?</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">100%</div><div class="stat-label">대학원 인증 필수</div></div>
+    <div class="stat"><div class="stat-num">CV형</div><div class="stat-label">연구 프로필</div></div>
+    <div class="stat"><div class="stat-num">하루 3명</div><div class="stat-label">무료 추천</div></div>
+  </div>
 </div>
 
-<div class="preview-wrap">
-  <div class="preview-card">
-    <div class="icon">📊</div>
-    <h3>사이트별 활동 분석</h3>
-    <p>오늘 방문한 사이트와 방문 횟수, 체류 시간을 한눈에 확인합니다.</p>
-  </div>
-  <div class="preview-card">
-    <div class="icon">🕐</div>
-    <h3>시간대별 히트맵</h3>
-    <p>24시간 중 언제 가장 활발하게 브라우징했는지 시각화합니다.</p>
-  </div>
-  <div class="preview-card">
-    <div class="icon">🔍</div>
-    <h3>오늘의 관심사 키워드</h3>
-    <p>방문한 페이지 제목을 분석해 오늘 내가 가장 관심을 가진 주제를 추출합니다.</p>
+<!-- ── HOW IT WORKS ── -->
+<div id="how"></div>
+<div class="how-section fade-in">
+  <div class="section-tag">How it works</div>
+  <div class="section-title">4단계로 진지한 연결을</div>
+  <p style="color:var(--muted); font-size:0.95rem; line-height:1.8;">복잡한 알고리즘보다, 당신의 연구 성향과 삶의 구조가 매칭의 기준입니다.</p>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num-badge">1</div>
+      <div class="step-icon">🎓</div>
+      <div class="step-name">대학원 인증</div>
+      <div class="step-desc">재학/졸업 증명서로 신원 인증. 최근 3개월 이내 서류만 유효합니다.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num-badge">2</div>
+      <div class="step-icon">📋</div>
+      <div class="step-name">CV 프로필 작성</div>
+      <div class="step-desc">전공, 연구 키워드, 커리어 방향, 생활 패턴을 프로필로 정리합니다.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num-badge">3</div>
+      <div class="step-icon">🔬</div>
+      <div class="step-name">연구 성향 매칭</div>
+      <div class="step-desc">키워드와 삶의 방식이 맞는 분의 연구 실적과 관심사를 먼저 확인합니다.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num-badge">4</div>
+      <div class="step-icon">📅</div>
+      <div class="step-name">미팅 예약</div>
+      <div class="step-desc">서로 관심이 있으면 비대면 화상 미팅으로 연결됩니다.</div>
+    </div>
   </div>
 </div>
 
 <div class="divider"></div>
 
-<div class="steps-wrap">
-  <div class="steps-title">설치 방법</div>
-  <div class="steps-sub">Chrome 개발자 모드로 2분 안에 설치할 수 있습니다</div>
-
-  <div class="step">
-    <div class="step-num">1</div>
-    <div>
-      <h4>저장소 다운로드</h4>
-      <p>GitHub에서 ZIP으로 다운로드하거나 git clone합니다.</p>
-      <code>git clone https://github.com/Hyunuk22/Test_for_the_Escape.git</code>
-    </div>
+<!-- ── FEATURE 1: 인증 ── -->
+<div id="features"></div>
+<div class="feature-row fade-in">
+  <div class="feature-text">
+    <div class="section-tag">Verification</div>
+    <div class="section-title">아무나 들어올 수<br/>없습니다</div>
+    <div class="section-sub">재학생·졸업생 증명서, 학교 홈페이지 멤버 링크로 직접 확인합니다. 초대 심사제로 운영되어 신뢰할 수 있는 커뮤니티를 유지합니다.</div>
+    <ul>
+      <li>재학·졸업 증명서 (3개월 이내 발급분)</li>
+      <li>학교 이메일 인증 지원</li>
+      <li>연구실 홈페이지 링크 등록 가능</li>
+      <li>비매너 행동 시 즉시 패널티</li>
+    </ul>
   </div>
-  <div class="step">
-    <div class="step-num">2</div>
-    <div>
-      <h4>Chrome 확장 프로그램 페이지 열기</h4>
-      <p>Chrome 주소창에 아래를 입력하세요.</p>
-      <code>chrome://extensions</code>
-    </div>
-  </div>
-  <div class="step">
-    <div class="step-num">3</div>
-    <div>
-      <h4>개발자 모드 켜기</h4>
-      <p>오른쪽 상단의 <strong>개발자 모드</strong> 토글을 활성화합니다.</p>
-    </div>
-  </div>
-  <div class="step">
-    <div class="step-num">4</div>
-    <div>
-      <h4>압축 해제된 확장 프로그램 로드</h4>
-      <p><strong>압축 해제된 항목 로드</strong>를 클릭하고 다운로드한 폴더 안의 <code>extension/</code> 폴더를 선택합니다.</p>
-    </div>
-  </div>
-  <div class="step">
-    <div class="step-num">5</div>
-    <div>
-      <h4>확장 프로그램 아이콘 클릭</h4>
-      <p>Chrome 툴바의 퍼즐 아이콘 → <strong>오늘의 활동 분석기</strong>를 핀하고 클릭하면 바로 시작됩니다.</p>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="screen-verify">
+          <div class="s-header">
+            <div class="s-logo">MEET LAB</div>
+            <div class="s-step">Step 1 / 3</div>
+          </div>
+          <div class="s-title">대학원 인증</div>
+          <div class="s-sub">재학·졸업 증명서를 업로드하세요<br/>최근 3개월 이내 발급분만 인정됩니다</div>
+          <div class="upload-box">
+            <div class="upload-icon">📄</div>
+            <div class="upload-label">파일을 드래그하거나 클릭하세요</div>
+            <div class="upload-sub">PDF, JPG, PNG · 최대 10MB</div>
+          </div>
+          <div class="s-sub" style="margin-top:0.8rem; margin-bottom:0.5rem;">또는 학교 선택</div>
+          <div class="verify-chips">
+            <div class="chip">POSTECH</div>
+            <div class="chip">KAIST</div>
+            <div class="chip">서울대</div>
+            <div class="chip">연세대</div>
+            <div class="chip">고려대</div>
+            <div class="chip">+ 더보기</div>
+          </div>
+          <div class="s-btn">인증 제출하기 →</div>
+          <div class="s-info">🔒 제출된 서류는 인증 후 즉시 삭제됩니다</div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- ── FEATURE 2: 프로필 ── -->
+<div class="feature-row reverse fade-in">
+  <div class="feature-text">
+    <div class="section-tag">Profile</div>
+    <div class="section-title">CV처럼,<br/>당신을 보여주세요</div>
+    <div class="section-sub">외모가 아닌 연구 실적, 관심 키워드, 커리어 방향으로 첫인상을 만듭니다. 얼굴 사진은 연구 성향이 맞는 사람에게만 공개됩니다.</div>
+    <ul>
+      <li>전공, 학위 과정, 연구 분야</li>
+      <li>최근 연구 관심 키워드</li>
+      <li>참여 학회 및 논문 실적</li>
+      <li>커리어 방향 (학계 / 기업)</li>
+      <li>결혼 의향, 장거리 여부, 생활 패턴</li>
+    </ul>
+  </div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="screen-profile">
+          <div class="profile-avatar">👤</div>
+          <div class="profile-name">김○○ 연구원</div>
+          <div class="profile-school">POSTECH · 컴퓨터공학과 박사과정</div>
+          <div class="profile-badges">
+            <div class="profile-badge">학계 진출</div>
+            <div class="profile-badge">NeurIPS 2024</div>
+            <div class="profile-badge">국내 희망</div>
+          </div>
+          <div class="profile-section">
+            <div class="profile-section-title">기본 정보</div>
+            <div class="profile-row"><span>학위</span><span>박사과정 (3년차)</span></div>
+            <div class="profile-row"><span>연구실 문화</span><span>자율 출퇴근</span></div>
+            <div class="profile-row"><span>바쁨 정도</span><span>보통 ●●●○○</span></div>
+            <div class="profile-row"><span>결혼 의향</span><span>3년 내 희망</span></div>
+          </div>
+          <div class="profile-section">
+            <div class="profile-section-title">연구 관심 키워드</div>
+            <div class="keywords-wrap">
+              <div class="keyword-tag">LLM</div>
+              <div class="keyword-tag">멀티모달</div>
+              <div class="keyword-tag">RLHF</div>
+              <div class="keyword-tag">AI Alignment</div>
+              <div class="keyword-tag">추론</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FEATURE 3: 매칭 ── -->
+<div class="feature-row fade-in">
+  <div class="feature-text">
+    <div class="section-tag">Matching</div>
+    <div class="section-title">연구 성향이 맞으면<br/>얼굴이 공개됩니다</div>
+    <div class="section-sub">처음에는 연구 키워드와 성향만 공개됩니다. 서로 관심을 표하면 그때 프로필 사진이 공개돼요. 하루 3명 무료, 더 보려면 구독.</div>
+    <ul>
+      <li>첫 추천: 연구 키워드·성향만 공개</li>
+      <li>상호 관심 → 얼굴 사진 공개</li>
+      <li>연구실 홈페이지 공식 사진 등록 가능</li>
+      <li>학회별 오픈채팅 커뮤니티 (익명)</li>
+      <li>하루 3명 무료 / 더보기 구독제</li>
+    </ul>
+  </div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="screen-match">
+          <div class="match-header">
+            <div class="match-title-s">오늘의 추천</div>
+            <div class="match-filter">필터 ⚙</div>
+          </div>
+          <div class="match-card">
+            <div class="match-card-top">
+              <div class="match-avatar-blur">👤</div>
+              <div class="match-info">
+                <div class="match-school-s">KAIST · 전기전자공학과</div>
+                <div class="match-dept">박사과정 2년차</div>
+              </div>
+              <div class="match-pct">87% 일치</div>
+            </div>
+            <div class="match-keywords-s">
+              <div class="match-kw">반도체 설계</div>
+              <div class="match-kw">CMOS</div>
+              <div class="match-kw">아날로그 회로</div>
+            </div>
+            <div class="match-actions">
+              <div class="match-btn pass">패스</div>
+              <div class="match-btn like">관심있어요 ♡</div>
+            </div>
+          </div>
+          <div class="match-card">
+            <div class="match-card-top">
+              <div class="match-avatar-blur">👤</div>
+              <div class="match-info">
+                <div class="match-school-s">서울대 · 화학생물공학부</div>
+                <div class="match-dept">석박통합 4년차</div>
+              </div>
+              <div class="match-pct">74% 일치</div>
+            </div>
+            <div class="match-keywords-s">
+              <div class="match-kw">나노재료</div>
+              <div class="match-kw">배터리</div>
+            </div>
+            <div class="match-actions">
+              <div class="match-btn pass">패스</div>
+              <div class="match-btn like">관심있어요 ♡</div>
+            </div>
+          </div>
+          <div class="lock-notice">🔒 오늘 3명 중 2명째 · 1명 남음</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FEATURE 4: 채팅 ── -->
+<div class="feature-row reverse fade-in">
+  <div class="feature-text">
+    <div class="section-tag">Connect</div>
+    <div class="section-title">대화하고,<br/>미팅을 잡으세요</div>
+    <div class="section-sub">관심이 매칭되면 1:1 채팅이 열립니다. 바쁜 일정에 맞게 비대면 화상 미팅으로 첫 만남을 시작하세요. 시간과 비용을 아낍니다.</div>
+    <ul>
+      <li>1:1 개인 채팅방</li>
+      <li>학회별 익명 오픈채팅 커뮤니티</li>
+      <li>앱 내 비대면 화상 미팅</li>
+      <li>일정 조율 기능 내장</li>
+    </ul>
+  </div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="screen-chat">
+          <div class="chat-header">
+            <div class="chat-av">😊</div>
+            <div>
+              <div class="chat-name-s">박○○ 연구원 <span style="color:var(--muted); font-weight:400; font-size:0.58rem;">KAIST 전기전자</span></div>
+              <div class="chat-status">● 온라인</div>
+            </div>
+          </div>
+          <div class="chat-messages">
+            <div class="msg them">
+              안녕하세요! 저도 멀티모달 연구하고 있는데 반갑습니다 😊
+              <div class="msg-time">오후 2:14</div>
+            </div>
+            <div class="msg me">
+              반갑습니다! NeurIPS 제출하셨다고 봤는데 어떤 주제셨나요?
+              <div class="msg-time">오후 2:15</div>
+            </div>
+            <div class="msg them">
+              VLM 기반 추론 관련이었어요. 혹시 짧게 미팅 한 번 어떠세요?
+              <div class="msg-time">오후 2:17</div>
+            </div>
+            <div class="meeting-card-msg">
+              <div class="meeting-card-title">📅 화상 미팅 제안</div>
+              <div class="meeting-time">이번 주 목요일 오후 7시<br/>30분 · 비대면 화상</div>
+            </div>
+            <div class="msg me">
+              좋아요! 수락할게요 👍
+              <div class="msg-time">오후 2:20</div>
+            </div>
+          </div>
+          <div class="chat-input-wrap">
+            <div class="chat-input">메시지 입력...</div>
+            <div class="chat-send">↑</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FEATURE 5: 화상통화 ── -->
+<div class="feature-row fade-in">
+  <div class="feature-text">
+    <div class="section-tag">Video Meet</div>
+    <div class="section-title">비대면으로 먼저,<br/>부담 없이 시작</div>
+    <div class="section-sub">바쁜 대학원생에게 첫 만남에 쓰는 시간과 비용은 부담입니다. 앱 내 화상 미팅으로 먼저 연결하고, 잘 맞으면 대면으로 이어가세요.</div>
+    <ul>
+      <li>앱 내 30분 화상 미팅</li>
+      <li>연구·일상 ice-breaking 질문 추천</li>
+      <li>미팅 후 서로 피드백 (익명)</li>
+      <li>대면 미팅으로 자연스러운 연결</li>
+    </ul>
+  </div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="screen-video">
+          <div class="video-timer">⏱ 18:32</div>
+          <div class="video-main">
+            <div class="video-avatar">👤</div>
+            <div class="video-label">박○○ 연구원</div>
+          </div>
+          <div class="video-self">😊</div>
+          <div class="video-controls">
+            <div class="vc-btn mic">🎙</div>
+            <div class="vc-btn cam">📷</div>
+            <div class="vc-btn end">📵</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── DIFFERENTIATORS ── -->
+<div class="diff-section fade-in">
+  <div style="text-align:center">
+    <div class="section-tag" style="justify-content:center">Why MEET LAB</div>
+    <div class="section-title">다른 소개팅 앱과 다른 점</div>
+    <p style="color:var(--muted); font-size:0.95rem; margin-top:0.5rem; line-height:1.8;">단순 외모·거리 매칭이 아닌, 삶의 구조와 미래 계획의 적합성을 봅니다.</p>
+  </div>
+  <div class="diff-grid">
+    <div class="diff-card">
+      <div class="diff-icon">🔐</div>
+      <div class="diff-title">검증된 사람만 입장</div>
+      <div class="diff-desc">대학원 재학·졸업 증명으로만 가입 가능. 아무나 들어올 수 없는 고신뢰 커뮤니티입니다.</div>
+    </div>
+    <div class="diff-card">
+      <div class="diff-icon">🧬</div>
+      <div class="diff-title">삶의 구조 매칭</div>
+      <div class="diff-desc">연구실 출퇴근 문화, 바쁨 정도, 커리어 우선순위 등 실제 생활 패턴으로 매칭합니다.</div>
+    </div>
+    <div class="diff-card">
+      <div class="diff-icon">🗺</div>
+      <div class="diff-title">미래 계획 적합성</div>
+      <div class="diff-desc">유학/국내, 취업/학계, 지역 이동 가능성 등 미래 방향이 맞는 사람을 우선 추천합니다.</div>
+    </div>
+    <div class="diff-card">
+      <div class="diff-icon">🎭</div>
+      <div class="diff-title">연구 성향 먼저, 얼굴은 나중</div>
+      <div class="diff-desc">처음엔 연구 키워드와 성향만 공개. 서로 맞다고 판단되면 그때 얼굴을 확인합니다.</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── PRICING ── -->
+<div id="pricing"></div>
+<div class="pricing-section fade-in">
+  <div class="section-tag" style="justify-content:center">Pricing</div>
+  <div class="section-title">더 많이 연결될수록</div>
+  <p style="color:var(--muted); font-size:0.95rem; margin-top:0.5rem; line-height:1.8;">기본은 무료. 더 많은 사람을 만나고 싶다면 구독을 선택하세요.</p>
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <div class="plan-label">FREE</div>
+      <div class="plan-price">₩0</div>
+      <div class="plan-unit">/ 월</div>
+      <ul class="plan-features">
+        <li>하루 추천 3명</li>
+        <li>1:1 채팅</li>
+        <li>화상 미팅 1회</li>
+      </ul>
+      <button class="plan-btn outline">기본 시작</button>
+    </div>
+    <div class="pricing-card featured">
+      <div class="plan-label accent">PRO ✦</div>
+      <div class="plan-price">₩9,900</div>
+      <div class="plan-unit">/ 월</div>
+      <ul class="plan-features">
+        <li>하루 추천 10명</li>
+        <li>프로필 상세 열람</li>
+        <li>화상 미팅 무제한</li>
+        <li>학회 오픈채팅 참여</li>
+      </ul>
+      <button class="plan-btn filled">Pro 시작</button>
+    </div>
+    <div class="pricing-card">
+      <div class="plan-label">PREMIUM</div>
+      <div class="plan-price">₩19,900</div>
+      <div class="plan-unit">/ 월</div>
+      <ul class="plan-features">
+        <li>하루 추천 30명</li>
+        <li>우선 추천 노출</li>
+        <li>고급 필터링</li>
+        <li>전부 포함</li>
+      </ul>
+      <button class="plan-btn outline">Premium</button>
+    </div>
+  </div>
+  <p style="color:var(--muted); font-size:0.78rem; margin-top:1.5rem;">연결 수수료 ₩1,900 · 수락한 상대방에게는 포인트 적립</p>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── WAITLIST ── -->
+<div id="waitlist"></div>
+<div class="waitlist-section">
+  <div class="waitlist-inner">
+    <div class="section-tag" style="justify-content:center">Early Access</div>
+    <div class="section-title">가장 먼저 시작하세요</div>
+    <p class="section-sub" style="text-align:center; margin-bottom:2rem;">사전 등록하시면 베타 출시 시 가장 먼저 초대해드립니다.<br/>Pro 1개월 무료 혜택을 드립니다.</p>
+
+    <div id="waitlistForm">
+      <div class="form-grid">
+        <div class="form-row">
+          <input class="form-input" type="text" placeholder="이름" id="fname" />
+          <select class="form-select" id="degree">
+            <option value="" disabled selected>학위 과정</option>
+            <option>석사과정</option>
+            <option>박사과정</option>
+            <option>석박통합</option>
+            <option>졸업 (석사)</option>
+            <option>졸업 (박사)</option>
+          </select>
+        </div>
+        <input class="form-input" type="email" placeholder="이메일 주소" id="email" />
+        <div class="form-row">
+          <input class="form-input" type="text" placeholder="소속 학교" id="school" />
+          <input class="form-input" type="text" placeholder="전공/학과" id="major" />
+        </div>
+        <select class="form-select" id="career">
+          <option value="" disabled selected>커리어 방향</option>
+          <option>학계 진출 (교수, 연구원)</option>
+          <option>기업 취업</option>
+          <option>스타트업 / 창업</option>
+          <option>아직 고민 중</option>
+        </select>
+        <button class="form-submit" onclick="submitWaitlist()">사전 등록하기 → Pro 1개월 무료</button>
+      </div>
+      <p class="form-note">🔒 입력하신 정보는 베타 초대 외 다른 용도로 사용되지 않습니다.</p>
+    </div>
+
+    <div class="success-msg" id="successMsg">
+      <div class="success-icon">🎉</div>
+      <h3>사전 등록 완료!</h3>
+      <p>베타 출시 시 가장 먼저 연락드리겠습니다.<br/>Pro 1개월 무료 혜택을 드립니다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
 <footer>
-  <p>오늘의 활동 분석기 · 방문 기록은 기기 내에서만 처리되며 외부로 전송되지 않습니다</p>
+  <div class="f-logo">MEET LAB</div>
+  <p>대학원생을 위한 진지한 연결 플랫폼</p>
+  <p style="margin-top:0.5rem;">© 2026 MEET LAB · 모든 정보는 안전하게 보호됩니다</p>
 </footer>
 
+<script>
+  // ── Scroll Fade In ──
+  const fadeEls = document.querySelectorAll('.fade-in');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); }
+    });
+  }, { threshold: 0.12 });
+  fadeEls.forEach(el => observer.observe(el));
+
+  // ── Waitlist Submit ──
+  function submitWaitlist() {
+    const email = document.getElementById('email').value.trim();
+    const name = document.getElementById('fname').value.trim();
+    const school = document.getElementById('school').value.trim();
+
+    if (!email || !name || !school) {
+      alert('이름, 이메일, 학교는 필수 입력 항목입니다.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      alert('올바른 이메일 주소를 입력해주세요.');
+      return;
+    }
+
+    // 실제 배포 시 서버/폼 연동으로 교체
+    document.getElementById('waitlistForm').style.display = 'none';
+    const successEl = document.getElementById('successMsg');
+    successEl.style.display = 'block';
+
+    // 등록 수 카운터 (로컬 데모용)
+    const count = parseInt(localStorage.getItem('ml_count') || '0') + 1;
+    localStorage.setItem('ml_count', count);
+  }
+
+  // ── Smooth anchor ──
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // ── Phone screens subtle float animation ──
+  document.querySelectorAll('.phone').forEach((phone, i) => {
+    phone.style.animation = `phoneFloat ${3 + i * 0.4}s ease-in-out infinite`;
+    phone.style.animationDelay = `${i * 0.3}s`;
+  });
+  const style = document.createElement('style');
+  style.textContent = `@keyframes phoneFloat { 0%,100%{transform:translateY(0) rotate(-1deg)} 50%{transform:translateY(-10px) rotate(1deg)} }`;
+  document.head.appendChild(style);
+</script>
 </body>
 </html>
