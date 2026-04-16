@@ -6,15 +6,15 @@
   <title>MEET LAB — 대학원생을 위한 진지한 연결</title>
   <style>
     :root {
-      --bg: #07080f;
-      --surface: #0f1018;
-      --card: #161824;
-      --border: rgba(255,255,255,0.07);
-      --accent: #6ee7b7;
-      --accent2: #34d399;
-      --accent3: #a78bfa;
-      --text: #e2e4f0;
-      --muted: #6b7280;
+      --bg: #ffffff;
+      --surface: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --accent: #10b981;
+      --accent2: #059669;
+      --accent3: #7c3aed;
+      --text: #0f172a;
+      --muted: #64748b;
       --phone-bg: #1a1d2e;
     }
 
@@ -32,7 +32,7 @@
     /* ── NAV ── */
     nav {
       position: sticky; top: 0; z-index: 200;
-      background: rgba(7,8,15,0.85);
+      background: rgba(255,255,255,0.92);
       backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
       padding: 0 2rem;
@@ -44,7 +44,7 @@
     .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
     .nav-links a:hover { color: var(--text); }
     .nav-cta {
-      background: var(--accent); color: #07080f;
+      background: var(--accent); color: #fff;
       padding: 0.45rem 1.2rem; border-radius: 999px;
       font-size: 0.82rem; font-weight: 800; text-decoration: none;
       transition: all 0.2s;
@@ -58,13 +58,13 @@
       text-align: center;
       padding: 6rem 2rem 4rem;
       background:
-        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(110,231,183,0.12) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(167,139,250,0.08) 0%, transparent 50%);
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(16,185,129,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(124,58,237,0.05) 0%, transparent 50%);
       position: relative;
     }
     .hero-badge {
       display: inline-flex; align-items: center; gap: 0.5rem;
-      background: rgba(110,231,183,0.1); border: 1px solid rgba(110,231,183,0.25);
+      background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2);
       color: var(--accent); padding: 0.35rem 1rem; border-radius: 999px;
       font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em;
       margin-bottom: 2rem;
@@ -86,13 +86,13 @@
     }
     .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
     .btn-primary {
-      background: var(--accent); color: #07080f;
+      background: var(--accent); color: #fff;
       padding: 0.85rem 2.4rem; border-radius: 999px;
       font-weight: 800; font-size: 0.95rem; text-decoration: none;
-      box-shadow: 0 4px 28px rgba(110,231,183,0.35);
+      box-shadow: 0 4px 28px rgba(16,185,129,0.25);
       transition: all 0.2s;
     }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(110,231,183,0.5); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(16,185,129,0.4); }
     .btn-secondary {
       border: 1px solid var(--border); color: var(--text);
       padding: 0.85rem 2rem; border-radius: 999px;
@@ -380,7 +380,7 @@
     .step-num-badge {
       position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
       width: 26px; height: 26px; border-radius: 50%;
-      background: var(--accent); color: #07080f;
+      background: var(--accent); color: #fff;
       font-size: 0.72rem; font-weight: 900;
       display: flex; align-items: center; justify-content: center;
     }
@@ -435,7 +435,7 @@
     /* ── WAITLIST ── */
     .waitlist-section {
       padding: 7rem 2rem; text-align: center;
-      background: radial-gradient(ellipse 80% 60% at 50% 100%, rgba(110,231,183,0.08) 0%, transparent 60%);
+      background: radial-gradient(ellipse 80% 60% at 50% 100%, rgba(16,185,129,0.06) 0%, transparent 60%);
     }
     .waitlist-inner { max-width: 540px; margin: 0 auto; }
     .waitlist-section .section-title { margin-bottom: 1rem; }
@@ -460,15 +460,42 @@
     .form-select:focus { border-color: rgba(110,231,183,0.4); }
     .form-submit {
       width: 100%; padding: 1rem;
-      background: var(--accent); color: #07080f;
+      background: var(--accent); color: #fff;
       border: none; border-radius: 12px;
       font-size: 1rem; font-weight: 900; cursor: pointer;
-      box-shadow: 0 4px 28px rgba(110,231,183,0.3);
+      box-shadow: 0 4px 28px rgba(16,185,129,0.25);
       transition: all 0.2s; margin-top: 0.5rem;
     }
-    .form-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(110,231,183,0.45); }
+    .form-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(16,185,129,0.4); }
     .form-submit:active { transform: translateY(0); }
     .form-note { font-size: 0.75rem; color: var(--muted); margin-top: 1rem; }
+
+    /* ── PRICE SELECTOR ── */
+    .price-question {
+      font-size: 0.92rem; font-weight: 700; color: var(--text);
+      margin-bottom: 0.8rem; text-align: left;
+    }
+    .price-options {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 0.6rem; margin-bottom: 0.5rem;
+    }
+    .price-option { display: none; }
+    .price-label {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 0.8rem 0.5rem; border: 2px solid var(--border);
+      border-radius: 12px; cursor: pointer; transition: all 0.15s;
+      background: var(--card);
+    }
+    .price-label:hover { border-color: var(--accent); }
+    .price-option:checked + .price-label {
+      border-color: var(--accent);
+      background: rgba(16,185,129,0.06);
+    }
+    .price-amount {
+      font-size: 1rem; font-weight: 800; color: var(--text); margin-bottom: 0.2rem;
+    }
+    .price-option:checked + .price-label .price-amount { color: var(--accent); }
+    .price-desc { font-size: 0.68rem; color: var(--muted); text-align: center; }
 
     /* ── SUCCESS STATE ── */
     .success-msg {
@@ -520,7 +547,6 @@
   <ul class="nav-links">
     <li><a href="#how">작동 방식</a></li>
     <li><a href="#features">기능</a></li>
-    <li><a href="#pricing">요금제</a></li>
     <li><a href="#waitlist">사전 등록</a></li>
   </ul>
   <a href="#waitlist" class="nav-cta">사전 등록 →</a>
@@ -750,13 +776,13 @@
 <div class="feature-row reverse fade-in">
   <div class="feature-text">
     <div class="section-tag">Connect</div>
-    <div class="section-title">대화하고,<br/>미팅을 잡으세요</div>
-    <div class="section-sub">관심이 매칭되면 1:1 채팅이 열립니다. 바쁜 일정에 맞게 비대면 화상 미팅으로 첫 만남을 시작하세요. 시간과 비용을 아낍니다.</div>
+    <div class="section-title">CV 확인 후,<br/>마음이 맞으면 연결</div>
+    <div class="section-sub">상대방의 연구 프로필(CV)을 확인하고 연구 주제와 성향이 맞다고 느껴지면, 소액을 지불해 개인 채팅방을 열 수 있습니다. 가볍지 않은 만남을 위한 장치입니다.</div>
     <ul>
-      <li>1:1 개인 채팅방</li>
+      <li>CV 열람 후 호감 표시</li>
+      <li>서로 관심 확인 → 소액 결제로 채팅방 오픈</li>
+      <li>1:1 개인 채팅 + 화상 미팅 일정 조율</li>
       <li>학회별 익명 오픈채팅 커뮤니티</li>
-      <li>앱 내 비대면 화상 미팅</li>
-      <li>일정 조율 기능 내장</li>
     </ul>
   </div>
   <div class="phone-wrap">
@@ -871,54 +897,6 @@
 
 <div class="divider"></div>
 
-<!-- ── PRICING ── -->
-<div id="pricing"></div>
-<div class="pricing-section fade-in">
-  <div class="section-tag" style="justify-content:center">Pricing</div>
-  <div class="section-title">더 많이 연결될수록</div>
-  <p style="color:var(--muted); font-size:0.95rem; margin-top:0.5rem; line-height:1.8;">기본은 무료. 더 많은 사람을 만나고 싶다면 구독을 선택하세요.</p>
-  <div class="pricing-grid">
-    <div class="pricing-card">
-      <div class="plan-label">FREE</div>
-      <div class="plan-price">₩0</div>
-      <div class="plan-unit">/ 월</div>
-      <ul class="plan-features">
-        <li>하루 추천 3명</li>
-        <li>1:1 채팅</li>
-        <li>화상 미팅 1회</li>
-      </ul>
-      <button class="plan-btn outline">기본 시작</button>
-    </div>
-    <div class="pricing-card featured">
-      <div class="plan-label accent">PRO ✦</div>
-      <div class="plan-price">₩9,900</div>
-      <div class="plan-unit">/ 월</div>
-      <ul class="plan-features">
-        <li>하루 추천 10명</li>
-        <li>프로필 상세 열람</li>
-        <li>화상 미팅 무제한</li>
-        <li>학회 오픈채팅 참여</li>
-      </ul>
-      <button class="plan-btn filled">Pro 시작</button>
-    </div>
-    <div class="pricing-card">
-      <div class="plan-label">PREMIUM</div>
-      <div class="plan-price">₩19,900</div>
-      <div class="plan-unit">/ 월</div>
-      <ul class="plan-features">
-        <li>하루 추천 30명</li>
-        <li>우선 추천 노출</li>
-        <li>고급 필터링</li>
-        <li>전부 포함</li>
-      </ul>
-      <button class="plan-btn outline">Premium</button>
-    </div>
-  </div>
-  <p style="color:var(--muted); font-size:0.78rem; margin-top:1.5rem;">연결 수수료 ₩1,900 · 수락한 상대방에게는 포인트 적립</p>
-</div>
-
-<div class="divider"></div>
-
 <!-- ── WAITLIST ── -->
 <div id="waitlist"></div>
 <div class="waitlist-section">
@@ -933,6 +911,7 @@
           <input class="form-input" type="text" placeholder="이름" id="fname" />
           <select class="form-select" id="degree">
             <option value="" disabled selected>학위 과정</option>
+            <option>학부생</option>
             <option>석사과정</option>
             <option>박사과정</option>
             <option>석박통합</option>
@@ -952,7 +931,43 @@
           <option>스타트업 / 창업</option>
           <option>아직 고민 중</option>
         </select>
-        <button class="form-submit" onclick="submitWaitlist()">사전 등록하기 → Pro 1개월 무료</button>
+
+        <div style="margin-top:0.5rem;">
+          <div class="price-question">💬 상대방과 연락 1회에 적정한 금액은?</div>
+          <div class="price-options">
+            <input type="radio" name="price" id="p1" value="무료여야 함" class="price-option">
+            <label for="p1" class="price-label">
+              <span class="price-amount">무료</span>
+              <span class="price-desc">무료여야 함</span>
+            </label>
+
+            <input type="radio" name="price" id="p2" value="₩1,900" class="price-option">
+            <label for="p2" class="price-label">
+              <span class="price-amount">₩1,900</span>
+              <span class="price-desc">커피 반 잔</span>
+            </label>
+
+            <input type="radio" name="price" id="p3" value="₩2,900" class="price-option">
+            <label for="p3" class="price-label">
+              <span class="price-amount">₩2,900</span>
+              <span class="price-desc">적당한 수준</span>
+            </label>
+
+            <input type="radio" name="price" id="p4" value="₩4,900" class="price-option">
+            <label for="p4" class="price-label">
+              <span class="price-amount">₩4,900</span>
+              <span class="price-desc">괜찮은 수준</span>
+            </label>
+
+            <input type="radio" name="price" id="p5" value="₩9,900 이상" class="price-option">
+            <label for="p5" class="price-label">
+              <span class="price-amount">₩9,900+</span>
+              <span class="price-desc">신중함의 값</span>
+            </label>
+          </div>
+        </div>
+
+        <button class="form-submit" onclick="submitWaitlist()">사전 등록하기 →</button>
       </div>
       <p class="form-note">🔒 입력하신 정보는 베타 초대 외 다른 용도로 사용되지 않습니다.</p>
     </div>
@@ -992,6 +1007,8 @@
     const school = document.getElementById('school').value.trim();
     const major  = document.getElementById('major').value.trim();
     const career = document.getElementById('career').value;
+    const priceEl = document.querySelector('input[name="price"]:checked');
+    const price  = priceEl ? priceEl.value : '미선택';
 
     if (!name || !email || !school) {
       alert('이름, 이메일, 학교는 필수 입력 항목입니다.');
@@ -1010,7 +1027,7 @@
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, degree, email, school, major, career })
+      body: JSON.stringify({ name, degree, email, school, major, career, price })
     })
     .then(() => {
       document.getElementById('waitlistForm').style.display = 'none';
@@ -1018,7 +1035,7 @@
     })
     .catch(() => {
       alert('제출 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
-      btn.textContent = '사전 등록하기 → Pro 1개월 무료';
+      btn.textContent = '사전 등록하기 →';
       btn.disabled = false;
     });
   }
